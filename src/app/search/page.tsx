@@ -7,7 +7,7 @@ import { PerPageSelector } from "./per-page-selector";
 import { loadChats, loadMemories } from "@/lib/persistence-layer";
 import { CHAT_LIMIT } from "../page";
 import { SideBar } from "@/components/side-bar";
-import { loadChunks } from "@/lib/utils";
+import { lexicalSearch } from "./search";
 
 export default async function SearchPage(props: {
   searchParams: Promise<{ q?: string; page?: string; perPage?: string }>;
@@ -17,26 +17,9 @@ export default async function SearchPage(props: {
   const page = Number(searchParams.page) || 1;
   const perPage = Number(searchParams.perPage) || 10;
 
-  const allChunks = await loadChunks();
-
   const normalizedQuery = query.toLowerCase().trim();
 
-  const filteredChunks = normalizedQuery
-    ? allChunks.filter((chunk) => {
-        const haystack = [
-          chunk.title,
-          chunk.content,
-          chunk.folder,
-          chunk.sourcePath,
-          ...chunk.tags,
-          ...chunk.aliases,
-        ]
-          .filter(Boolean)
-          .join(" ")
-          .toLowerCase();
-        return haystack.includes(normalizedQuery);
-      })
-    : allChunks;
+  const filteredChunks = await lexicalSearch(normalizedQuery);
 
   const totalPages = Math.ceil(filteredChunks.length / perPage);
   const startIndex = (page - 1) * perPage;

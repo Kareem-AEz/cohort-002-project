@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FileTextIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import { useState } from "react";
-import { VaultChunk } from "./search";
+import { LexicalSearchResult } from "./search";
 
-function ChunkCard({ chunk }: { chunk: VaultChunk }) {
+function ChunkCard({ chunk }: { chunk: LexicalSearchResult }) {
   const [expanded, setExpanded] = useState(false);
 
   const formatDate = (dateString: string | null) => {
@@ -36,11 +36,18 @@ function ChunkCard({ chunk }: { chunk: VaultChunk }) {
                 {chunk.sourcePath}
               </p>
             </div>
-            {formattedDate && (
-              <span className="text-xs text-muted-foreground whitespace-nowrap">
-                {formattedDate}
-              </span>
-            )}
+            <div className="flex items-center gap-2">
+              {chunk.score > 0 && (
+                <Badge variant="outline" className="text-xs font-mono">
+                  {chunk.score.toFixed(2)}
+                </Badge>
+              )}
+              {formattedDate && (
+                <span className="text-xs text-muted-foreground whitespace-nowrap">
+                  {formattedDate}
+                </span>
+              )}
+            </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-2 mt-2">
@@ -100,7 +107,7 @@ function ChunkCard({ chunk }: { chunk: VaultChunk }) {
   );
 }
 
-export function ChunkList({ chunks }: { chunks: VaultChunk[] }) {
+export function ChunkList({ chunks }: { chunks: LexicalSearchResult[] }) {
   if (chunks.length === 0) {
     return (
       <div className="text-center py-12">
