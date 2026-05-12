@@ -10,11 +10,14 @@ import {
   convertToModelMessages,
   createUIMessageStream,
   createUIMessageStreamResponse,
+  gateway,
   safeValidateUIMessages,
   streamText,
   UIMessage,
+  wrapLanguageModel,
 } from "ai";
 import { generateTitleForChat } from "./generate-title";
+import { devToolsMiddleware } from "@ai-sdk/devtools";
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -25,6 +28,11 @@ export type MyMessage = UIMessage<
     "frontend-action": "refresh-sidebar";
   }
 >;
+
+const model = wrapLanguageModel({
+  model: gateway("deepseek/deepseek-v4-flash"),
+  middleware: [devToolsMiddleware()],
+});
 
 export async function POST(req: Request) {
   const body: {
@@ -91,8 +99,8 @@ export async function POST(req: Request) {
       }
 
       const result = streamText({
-        model: google("gemini-2.5-flash-lite"),
-        messages: convertToModelMessages(messages),
+        model,
+        messages: await convertToModelMessages(messages),
       });
 
       writer.merge(
