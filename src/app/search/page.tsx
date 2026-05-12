@@ -3,32 +3,11 @@ import { SearchInput } from "./search-input";
 import { ChunkList } from "./chunk-list";
 import { SearchPagination } from "./search-pagination";
 import { PerPageSelector } from "./per-page-selector";
-import fs from "fs/promises";
-import path from "path";
+
 import { loadChats, loadMemories } from "@/lib/persistence-layer";
 import { CHAT_LIMIT } from "../page";
 import { SideBar } from "@/components/side-bar";
-
-export interface VaultChunk {
-  id: string;
-  title: string;
-  content: string;
-  folder: string;
-  tags: string[];
-  aliases: string[];
-  createdAt: string | null;
-  modifiedAt: string | null;
-  wordCount: number;
-  chunkIndex: number;
-  chunkTotal: number;
-  sourcePath: string;
-}
-
-async function loadChunks(): Promise<VaultChunk[]> {
-  const filePath = path.join(process.cwd(), "data", "my-dataset.json");
-  const fileContent = await fs.readFile(filePath, "utf-8");
-  return JSON.parse(fileContent);
-}
+import { loadChunks } from "@/lib/utils";
 
 export default async function SearchPage(props: {
   searchParams: Promise<{ q?: string; page?: string; perPage?: string }>;
@@ -61,7 +40,10 @@ export default async function SearchPage(props: {
 
   const totalPages = Math.ceil(filteredChunks.length / perPage);
   const startIndex = (page - 1) * perPage;
-  const paginatedChunks = filteredChunks.slice(startIndex, startIndex + perPage);
+  const paginatedChunks = filteredChunks.slice(
+    startIndex,
+    startIndex + perPage
+  );
 
   const allChats = await loadChats();
   const chats = allChats.slice(0, CHAT_LIMIT);

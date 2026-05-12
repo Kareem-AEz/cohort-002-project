@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FileTextIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import { useState } from "react";
-import { VaultChunk } from "./page";
+import { VaultChunk } from "./search";
 
 function ChunkCard({ chunk }: { chunk: VaultChunk }) {
   const [expanded, setExpanded] = useState(false);
@@ -31,9 +31,7 @@ function ChunkCard({ chunk }: { chunk: VaultChunk }) {
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-4 mb-1">
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-base mb-0.5">
-                {chunk.title}
-              </h3>
+              <h3 className="font-semibold text-base mb-0.5">{chunk.title}</h3>
               <p className="text-xs text-muted-foreground truncate">
                 {chunk.sourcePath}
               </p>
