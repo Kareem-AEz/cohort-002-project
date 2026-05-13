@@ -2,7 +2,7 @@ import MiniSearch from "minisearch";
 import { VaultChunk, VaultFields } from "./types";
 import fs from "fs/promises";
 import path from "path";
-import { embedMany } from "ai";
+import { cosineSimilarity, embed, embedMany } from "ai";
 import { GoogleGenerativeAIEmbeddingProviderOptions } from "@ai-sdk/google";
 
 const CACHE_DIR = path.join(process.cwd(), "data", "embeddings");
@@ -65,10 +65,8 @@ export const loadOrGenerateEmbeddings = async (VaultChunk: VaultChunk[]) => {
 // Extended result type that attaches MiniSearch metadata to each VaultChunk.
 // `score` and `rank` are pre-computed for future Reciprocal Rank Fusion (RRF).
 // `match` tells us which query terms hit which fields (useful for highlighting).
-export interface LexicalSearchResult extends VaultChunk {
+export interface SearchResult extends VaultChunk {
   score: number;
-  rank: number;
-  match: Record<string, string[]>;
 }
 
 // Module-level caches so we only load + index the dataset once per server instance.
@@ -116,9 +114,7 @@ const getIndex = async () => {
   return index;
 };
 
-export const lexicalSearch = async (
-  query: string
-): Promise<LexicalSearchResult[]> => {
+export const lexicalSearch = async (query: string): Promise<SearchResult[]> => {
   const miniSearch = await getIndex();
 
   // Empty query: return all cached chunks in original order.
@@ -133,7 +129,6 @@ export const lexicalSearch = async (
     }));
   }
 
-  const embeddings = await loadOrGenerateEmbeddings(cachedChunks ?? []);
   // Run the actual MiniSearch query.
   const lexicalResults = miniSearch.search(query.trim());
 
@@ -155,3 +150,33 @@ export const lexicalSearch = async (
     };
   });
 };
+
+export const semanticSearch = async (
+  query: string,
+  chunks: VaultChunk[]
+): Promise<SearchResult[]> => {
+  const embeddings = await loadOrGenerateEmbeddings(chunks);
+  const queryEmbedding = await embed({
+    model: "google/gemini-embedding-2",
+    value: query,
+  });
+
+  const results = embeddings.map((embedding) => {
+    const similarity = cosineSimilarity(
+      queryEmbedding.embedding,
+      embedding.embedding
+    );
+    const chunk = chunks.find((c) => c.id === embedding.id);
+
+    if (!chunk) throw new Error(`Missing chunk for id: ${embedding.id}`);
+
+
+    return {
+      ...chunk,
+      score: similarity,
+    };
+  });
+
+
+  return results.sort((a, b) => b.score - a.score);
+}; 

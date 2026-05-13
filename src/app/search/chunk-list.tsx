@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FileTextIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import { useState } from "react";
-import { LexicalSearchResult } from "./search";
+import { SearchResult } from "./search";
 
-function ChunkCard({ chunk }: { chunk: LexicalSearchResult }) {
+function ChunkCard({ chunk }: { chunk: SearchResult }) {
   const [expanded, setExpanded] = useState(false);
 
   const formatDate = (dateString: string | null) => {
@@ -107,7 +107,7 @@ function ChunkCard({ chunk }: { chunk: LexicalSearchResult }) {
   );
 }
 
-export function ChunkList({ chunks }: { chunks: LexicalSearchResult[] }) {
+export function ChunkList({ chunks }: { chunks: SearchResult[] }) {
   if (chunks.length === 0) {
     return (
       <div className="text-center py-12">

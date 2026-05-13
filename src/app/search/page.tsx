@@ -7,7 +7,7 @@ import { PerPageSelector } from "./per-page-selector";
 import { loadChats, loadMemories } from "@/lib/persistence-layer";
 import { CHAT_LIMIT } from "../page";
 import { SideBar } from "@/components/side-bar";
-import { lexicalSearch } from "./search";
+import { lexicalSearch, loadChunks, semanticSearch } from "./search";
 
 export default async function SearchPage(props: {
   searchParams: Promise<{ q?: string; page?: string; perPage?: string }>;
@@ -19,7 +19,8 @@ export default async function SearchPage(props: {
 
   const normalizedQuery = query.toLowerCase().trim();
 
-  const filteredChunks = await lexicalSearch(normalizedQuery);
+  const allChunks = await loadChunks();
+  const filteredChunks = await semanticSearch(normalizedQuery, allChunks);
 
   const totalPages = Math.ceil(filteredChunks.length / perPage);
   const startIndex = (page - 1) * perPage;
