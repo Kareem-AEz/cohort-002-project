@@ -2,6 +2,65 @@ import MiniSearch from "minisearch";
 import { VaultChunk, VaultFields } from "./types";
 import fs from "fs/promises";
 import path from "path";
+import { embedMany } from "ai";
+import { GoogleGenerativeAIEmbeddingProviderOptions } from "@ai-sdk/google";
+
+const CACHE_DIR = path.join(process.cwd(), "data", "embeddings");
+const CACHE_KEY = "gemini-embedding-2";
+
+const getEmbeddingFilePath = (id: string) => {
+  const safeId = id.replace(/[\\/]/g, "_");
+  return path.join(CACHE_DIR, `${CACHE_KEY}-${safeId}.json`);
+};
+
+export const loadOrGenerateEmbeddings = async (VaultChunk: VaultChunk[]) => {
+  await fs.mkdir(CACHE_DIR, { recursive: true });
+  const results: { id: string; embedding: number[] }[] = [];
+  const unCachedChunks: VaultChunk[] = [];
+
+  for (const chunk of VaultChunk) {
+    try {
+      // cache hit
+      const cached = await fs.readFile(getEmbeddingFilePath(chunk.id), "utf-8");
+      const data: { id: string; embedding: number[] } = JSON.parse(cached);
+      results.push({ id: chunk.id, embedding: data.embedding });
+    } catch (error) {
+      // cache miss
+      unCachedChunks.push(chunk);
+    }
+  }
+
+  if (unCachedChunks.length > 0) {
+    console.log(`Generating embeddings for ${unCachedChunks.length} chunks...`);
+
+    const batchSize = 100;
+    for (let i = 0; i < unCachedChunks.length; i += batchSize) {
+      const batch = unCachedChunks.slice(i, i + batchSize);
+
+      console.log(
+        `Generating embeddings for batch ${i / batchSize + 1} of ${Math.ceil(unCachedChunks.length / batchSize)}...`
+      );
+
+      const batchEmbeddings = await embedMany({
+        model: "google/gemini-embedding-2",
+        values: batch.map((chunk) => `${chunk.title}\n${chunk.content}`),
+      });
+
+      for (let j = 0; j < batch.length; j++) {
+        const chunk = batch[j];
+        const embedding = batchEmbeddings.embeddings[j];
+        results.push({ id: chunk.id, embedding });
+        await fs.writeFile(
+          getEmbeddingFilePath(chunk.id),
+          JSON.stringify({ id: chunk.id, embedding }),
+          "utf-8"
+        );
+      }
+    }
+  }
+
+  return results;
+};
 
 // Extended result type that attaches MiniSearch metadata to each VaultChunk.
 // `score` and `rank` are pre-computed for future Reciprocal Rank Fusion (RRF).
@@ -74,14 +133,15 @@ export const lexicalSearch = async (
     }));
   }
 
+  const embeddings = await loadOrGenerateEmbeddings(cachedChunks ?? []);
   // Run the actual MiniSearch query.
-  const results = miniSearch.search(query.trim());
+  const lexicalResults = miniSearch.search(query.trim());
 
   // Map MiniSearch results back to full VaultChunk objects using `chunkMap`.
   // BUGFIX: removed `chunkMap!` non-null assertion. `chunkMap` is guaranteed
   // to be set because `getIndex()` populates it, but we handle the edge case
   // safely in case a chunk id is missing from the map.
-  return results.map((result, i) => {
+  return lexicalResults.map((result, i) => {
     const chunk = chunkMap?.get(result.id);
     if (!chunk) {
       throw new Error(`Missing chunk for id: ${result.id}`);

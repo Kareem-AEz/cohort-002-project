@@ -6,9 +6,9 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "cherry-pick": "ai-hero-cli cherry-pick --branch=live-run-through",
-    "reset": "ai-hero-cli reset --branch=live-run-through",
-    "pull": "ai-hero-cli pull"
+    "cherry-pick": "ai-hero-cli cherry-pick --branch=live-run-through --upstream=https://github.com/ai-hero-dev/cohort-002-project.git",
+    "reset": "ai-hero-cli reset --branch=live-run-through --upstream=https://github.com/ai-hero-dev/cohort-002-project.git",
+    "pull": "ai-hero-cli pull --upstream=https://github.com/ai-hero-dev/cohort-002-project.git"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.76",
