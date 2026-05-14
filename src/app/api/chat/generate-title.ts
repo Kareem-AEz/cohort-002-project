@@ -1,12 +1,12 @@
 import { google } from "@ai-sdk/google";
-import { convertToModelMessages, gateway, generateText, UIMessage } from "ai";
+import { convertToModelMessages, generateText, UIMessage } from "ai";
 
 export async function generateTitleForChat(
   messages: UIMessage[]
 ): Promise<string> {
   const result = await generateText({
-    model: gateway("deepseek/deepseek-v4-flash"),
-    messages: await convertToModelMessages(messages),
+    model: google("gemini-2.5-flash-lite"),
+    messages: convertToModelMessages(messages),
     system: `
       You are a helpful assistant that can generate titles for conversations. The title will be used for organizing conversations in a chat application.
       

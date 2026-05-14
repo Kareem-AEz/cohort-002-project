@@ -43,4 +43,5 @@ next-env.d.ts
 db.local.json
 data
 !data/emails.json
-.devtools
+archive/
+.devtools/

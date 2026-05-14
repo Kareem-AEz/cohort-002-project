@@ -1,13 +1,12 @@
+import { SideBar } from "@/components/side-bar";
 import { TopBar } from "@/components/top-bar";
-import { SearchInput } from "./search-input";
-import { ChunkList } from "./chunk-list";
-import { SearchPagination } from "./search-pagination";
-import { PerPageSelector } from "./per-page-selector";
-
 import { loadChats, loadMemories } from "@/lib/persistence-layer";
 import { CHAT_LIMIT } from "../page";
-import { SideBar } from "@/components/side-bar";
-import { loadChunks, RAGSearch } from "./search";
+import { loadEmails, searchWithEmbeddings, searchWithRRF } from "../search";
+import { EmailList } from "./email-list";
+import { PerPageSelector } from "./per-page-selector";
+import { SearchInput } from "./search-input";
+import { SearchPagination } from "./search-pagination";
 
 export default async function SearchPage(props: {
   searchParams: Promise<{ q?: string; page?: string; perPage?: string }>;
@@ -17,18 +16,34 @@ export default async function SearchPage(props: {
   const page = Number(searchParams.page) || 1;
   const perPage = Number(searchParams.perPage) || 10;
 
-  const normalizedQuery = query.toLowerCase().trim();
+  const allEmails = await loadEmails();
 
-  const allChunks = await loadChunks();
-  const filteredChunks = await RAGSearch(normalizedQuery, allChunks);
+  const emailsWithScores = await searchWithRRF(query, allEmails);
 
-  const totalPages = Math.ceil(filteredChunks.length / perPage);
+  // Transform emails to match the expected format
+  const transformedEmails = emailsWithScores
+    .map(({ email, score }) => ({
+      id: email.id,
+      from: email.from,
+      subject: email.subject,
+      preview: email.body.substring(0, 100) + "...",
+      content: email.body,
+      date: email.timestamp,
+      score: score,
+    }))
+    .sort((a, b) => b.score - a.score);
+
+  // Filter emails based on search query
+  const filteredEmails = query
+    ? transformedEmails.filter((email) => email.score > 0)
+    : transformedEmails;
+
+  const totalPages = Math.ceil(filteredEmails.length / perPage);
   const startIndex = (page - 1) * perPage;
-  const paginatedChunks = filteredChunks.slice(
+  const paginatedEmails = filteredEmails.slice(
     startIndex,
     startIndex + perPage
   );
-
   const allChats = await loadChats();
   const chats = allChats.slice(0, CHAT_LIMIT);
   const memories = await loadMemories();
@@ -42,7 +57,7 @@ export default async function SearchPage(props: {
           <div className="max-w-4xl mx-auto xl:px-2 px-6 py-6">
             <div className="mb-6">
               <p className="text-sm text-muted-foreground">
-                Search through your knowledge base
+                Search through your email archive
               </p>
             </div>
 
@@ -56,17 +71,17 @@ export default async function SearchPage(props: {
                 <p className="text-sm text-muted-foreground">
                   {query ? (
                     <>
-                      Found {filteredChunks.length} result
-                      {filteredChunks.length !== 1 ? "s" : ""} for &ldquo;
+                      Found {filteredEmails.length} result
+                      {filteredEmails.length !== 1 ? "s" : ""} for &ldquo;
                       {query}
                       &rdquo;
                     </>
                   ) : (
-                    <>Found {filteredChunks.length} entries</>
+                    <>Found {filteredEmails.length} emails</>
                   )}
                 </p>
               </div>
-              <ChunkList chunks={paginatedChunks} />
+              <EmailList emails={paginatedEmails} />
               {totalPages > 1 && (
                 <div className="mt-6">
                   <SearchPagination

@@ -33,7 +33,7 @@ export function SearchInput({
     <form onSubmit={handleSubmit} className="flex gap-2 max-w-md flex-1">
       <Input
         type="text"
-        placeholder="Search notes..."
+        placeholder="Search emails..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         className="flex-1 flex-shrink-0"
