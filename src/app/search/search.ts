@@ -121,11 +121,9 @@ export const lexicalSearch = async (query: string): Promise<SearchResult[]> => {
   // We use `cachedChunks` (set during `getIndex`) instead of calling `loadChunks()`
   // again — this avoids a redundant file-read on every empty-query request.
   if (!query.trim()) {
-    return (cachedChunks ?? []).map((chunk, i) => ({
+    return (cachedChunks ?? []).map((chunk) => ({
       ...chunk,
       score: 0,
-      match: {},
-      rank: i + 1,
     }));
   }
 
@@ -145,8 +143,6 @@ export const lexicalSearch = async (query: string): Promise<SearchResult[]> => {
     return {
       ...chunk,
       score: result.score,
-      match: result.match,
-      rank: i + 1,
     };
   });
 };
@@ -155,6 +151,8 @@ export const semanticSearch = async (
   query: string,
   chunks: VaultChunk[]
 ): Promise<SearchResult[]> => {
+  if (!query) return chunks.map((chunk) => ({ ...chunk, score: 0 }));
+
   const embeddings = await loadOrGenerateEmbeddings(chunks);
   const queryEmbedding = await embed({
     model: "google/gemini-embedding-2",
@@ -170,13 +168,51 @@ export const semanticSearch = async (
 
     if (!chunk) throw new Error(`Missing chunk for id: ${embedding.id}`);
 
-
     return {
       ...chunk,
       score: similarity,
     };
   });
 
+  return results
+    .sort((a, b) => b.score - a.score)
+};
 
-  return results.sort((a, b) => b.score - a.score);
-}; 
+export const RAGSearch = async (query: string, chunks: VaultChunk[]): Promise<SearchResult[]> => {
+  if (!query.trim()) {
+    return chunks.map((chunk) => ({ ...chunk, score: 0 }));
+  }
+
+  const normalizedQuery = query.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+  const [lexicalResults, semanticResults] = await Promise.all([
+    lexicalSearch(normalizedQuery),
+    semanticSearch(normalizedQuery, chunks),
+  ]);
+
+  const K = 60;
+  const chunkData = new Map<string, SearchResult>();
+
+  // RRF formula: score = 1 / (k + rank)
+  lexicalResults.forEach((item, i) => {
+    const id = item.id
+    const existing = chunkData.get(id);
+    chunkData.set(id, {
+      ...item,
+      score: (existing?.score ?? 0) + 1 / (K + i + 1),
+    });
+  })
+
+  semanticResults.forEach((item, i) => {
+    const id = item.id
+    const existing = chunkData.get(id);
+    chunkData.set(id, {
+      ...item,
+      score: (existing?.score ?? 0) + 1 / (K + i + 1),
+    });
+  })
+
+  const mergedResults = Array.from(chunkData.values()).sort((a, b) => b.score - a.score);
+
+  return mergedResults;
+};

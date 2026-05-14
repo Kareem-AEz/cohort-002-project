@@ -39,7 +39,7 @@ function ChunkCard({ chunk }: { chunk: SearchResult }) {
             <div className="flex items-center gap-2">
               {chunk.score > 0 && (
                 <Badge variant="outline" className="text-xs font-mono">
-                  {chunk.score.toFixed(2)}
+                  {(chunk.score * 1000).toFixed(1)}
                 </Badge>
               )}
               {formattedDate && (
