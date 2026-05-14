@@ -6,7 +6,7 @@ export async function generateTitleForChat(
 ): Promise<string> {
   const result = await generateText({
     model: google("gemini-2.5-flash-lite"),
-    messages: convertToModelMessages(messages),
+    messages: await convertToModelMessages(messages),
     system: `
       You are a helpful assistant that can generate titles for conversations. The title will be used for organizing conversations in a chat application.
       

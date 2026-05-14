@@ -2,7 +2,6 @@ import BM25 from "okapibm25";
 import fs from "fs/promises";
 import path from "path";
 import { embed, embedMany, cosineSimilarity } from "ai";
-import { google } from "@ai-sdk/google";
 
 export interface Email {
   id: string;
@@ -41,7 +40,7 @@ export async function loadEmails(): Promise<Email[]> {
 
 const CACHE_DIR = path.join(process.cwd(), "data", "embeddings");
 
-const CACHE_KEY = "google-text-embedding-004";
+const CACHE_KEY = "google-gemini-embedding-2";
 
 const getEmbeddingFilePath = (id: string) =>
   path.join(CACHE_DIR, `${CACHE_KEY}-${id}.json`);
@@ -81,7 +80,7 @@ export async function loadOrGenerateEmbeddings(
       );
 
       const { embeddings } = await embedMany({
-        model: google.textEmbeddingModel("text-embedding-004"),
+        model: 'google/gemini-embedding-2',
         values: batch.map((e) => `${e.subject} ${e.body}`),
       });
 
@@ -104,12 +103,17 @@ export async function loadOrGenerateEmbeddings(
 }
 
 export async function searchWithEmbeddings(query: string, emails: Email[]) {
+  // No query = no semantic ranking; return all emails with zero score
+  if (!query.trim()) {
+    return emails.map((email) => ({ score: 0, email }));
+  }
+
   // Load cached embeddings
   const emailEmbeddings = await loadOrGenerateEmbeddings(emails);
 
   // Generate query embedding
   const { embedding: queryEmbedding } = await embed({
-    model: google.textEmbeddingModel("text-embedding-004"),
+    model: "google/gemini-embedding-2",
     value: query,
   });
 
