@@ -29,6 +29,7 @@ import {
   ReasoningTrigger,
 } from "@/components/ai-elements/reasoning";
 import { Response } from "@/components/ai-elements/response";
+import { SearchToolResult } from "@/components/ai-elements/search-tool-result";
 import {
   Source,
   Sources,
@@ -173,6 +174,13 @@ export const Chat = (props: { chat: DB.Chat | null }) => {
                         <ReasoningContent>{part.text}</ReasoningContent>
                       </Reasoning>
                     );
+                    case "tool-searchTool":
+                      return (
+                        <SearchToolResult
+                          key={`${message.id}-${i}`}
+                          part={part}
+                        />
+                      );
                   default:
                     return null;
                 }

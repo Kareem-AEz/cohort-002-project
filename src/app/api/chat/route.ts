@@ -12,11 +12,21 @@ import {
   gateway,
   safeValidateUIMessages,
   streamText,
+  ToolSet,
   UIMessage,
   wrapLanguageModel,
+  InferUITools,
+  stepCountIs
 } from "ai";
 import { generateTitleForChat } from "./generate-title";
 import { devToolsMiddleware } from "@ai-sdk/devtools";
+import { searchTool } from "./search-tool";
+
+const myTools = {
+   searchTool
+} satisfies ToolSet;
+
+export type MyTools = InferUITools<typeof myTools>;
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -25,7 +35,8 @@ export type MyMessage = UIMessage<
   never,
   {
     "frontend-action": "refresh-sidebar";
-  }
+  },
+  MyTools
 >;
 
 const model = wrapLanguageModel({
@@ -100,7 +111,10 @@ export async function POST(req: Request) {
 
       const result = streamText({
         model,
+        system: `You are a helpful assistant that answers questions based on the provided context. If you don't know the answer, just say that you don't know, don't try to make up an answer.`,
         messages: await convertToModelMessages(messages),
+        tools: myTools,
+        stopWhen: [stepCountIs(10)],
       });
 
       writer.merge(
