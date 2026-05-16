@@ -4,7 +4,7 @@ import { Email } from "./search";
 import fs from "fs/promises";
 
 const CACHE_DIR = path.join(process.cwd(), "data", "embeddings");
-const CACHE_KEY = "google-text-embedding-004";
+const CACHE_KEY = "voyage-4-lite";
 
 const getEmbeddingFilePath = (content: string) => {
   const hash = crypto

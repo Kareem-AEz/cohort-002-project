@@ -2,7 +2,12 @@ import { SideBar } from "@/components/side-bar";
 import { TopBar } from "@/components/top-bar";
 import { loadChats, loadMemories } from "@/lib/persistence-layer";
 import { CHAT_LIMIT } from "../page";
-import { loadEmails, searchWithEmbeddings, searchWithRRF } from "../search";
+import {
+  emailToChunks,
+  loadEmails,
+  searchWithEmbeddings,
+  searchWithRRF,
+} from "../search";
 import { EmailList } from "./email-list";
 import { PerPageSelector } from "./per-page-selector";
 import { SearchInput } from "./search-input";
@@ -17,18 +22,23 @@ export default async function SearchPage(props: {
   const perPage = Number(searchParams.perPage) || 10;
 
   const allEmails = await loadEmails();
+  const emailChunks = await emailToChunks(allEmails);
 
-  const emailsWithScores = await searchWithRRF(query, allEmails);
+  const emailsWithScores = await searchWithRRF(query, emailChunks);
 
   // Transform emails to match the expected format
+  // src/app/search/page.tsx
+
   const transformedEmails = emailsWithScores
-    .map(({ email, score }) => ({
-      id: email.id,
-      from: email.from,
-      subject: email.subject,
-      preview: email.body.substring(0, 100) + "...",
-      content: email.body,
-      date: email.timestamp,
+    .map(({ emailChunk, score }) => ({
+      id: emailChunk.id,
+      from: emailChunk.from,
+      subject: emailChunk.subject,
+      preview: emailChunk.chunk.substring(0, 100) + "...",
+      content: emailChunk.chunk,
+      index: emailChunk.index,
+      totalChunks: emailChunk.totalChunks,
+      date: emailChunk.timestamp,
       score: score,
     }))
     .sort((a, b) => b.score - a.score);

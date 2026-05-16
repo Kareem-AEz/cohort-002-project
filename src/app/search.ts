@@ -2,6 +2,12 @@ import BM25 from "okapibm25";
 import fs from "fs/promises";
 import path from "path";
 import { embed, embedMany, cosineSimilarity } from "ai";
+import {
+  ensureEmbeddingsCacheDirectory,
+  getCachedEmbedding,
+  writeEmbeddingToCache,
+} from "@/app/embeddings";
+import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 
 export interface Email {
   id: string;
@@ -19,16 +25,60 @@ export interface Email {
   phaseId?: number;
 }
 
-export async function searchWithBM25(keywords: string[], emails: Email[]) {
+export interface EmailChunk {
+  id: string;
+  subject: string;
+  chunk: string;
+  index: number;
+  totalChunks: number;
+  from: string;
+  to: string | string[];
+  timestamp: string;
+}
+
+const textSplitter = new RecursiveCharacterTextSplitter({
+  chunkSize: 1000,
+  chunkOverlap: 100,
+  separators: ["\n\n", "\n", " ", ""],
+});
+
+export const emailChunkToText = (emailChunk: EmailChunk) =>
+  `${emailChunk.subject} ${emailChunk.chunk}`;
+
+export const emailToChunks = async (emails: Email[]): Promise<EmailChunk[]> => {
+  const emailChunks: EmailChunk[] = [];
+
+  for (const email of emails) {
+    const chunks = await textSplitter.splitText(email.body);
+    chunks.forEach((chunk, index) => {
+      emailChunks.push({
+        id: email.id,
+        subject: email.subject,
+        chunk,
+        index,
+        from: email.from,
+        to: email.to,
+        timestamp: email.timestamp,
+        totalChunks: chunks.length,
+      });
+    });
+  }
+  return emailChunks;
+};
+
+export async function searchWithBM25(
+  keywords: string[],
+  emailChunks: EmailChunk[]
+) {
   // Combine subject + body for richer text corpus
-  const corpus = emails.map((email) => `${email.subject} ${email.body}`);
+  const corpus = emailChunks.map(emailChunkToText);
 
   // BM25 returns score array matching corpus order
   const scores: number[] = (BM25 as any)(corpus, keywords);
 
   // Map scores to emails, sort descending
   return scores
-    .map((score, idx) => ({ score, email: emails[idx] }))
+    .map((score, idx) => ({ score, emailChunk: emailChunks[idx] }))
     .sort((a, b) => b.score - a.score);
 }
 
@@ -38,63 +88,58 @@ export async function loadEmails(): Promise<Email[]> {
   return JSON.parse(fileContent);
 }
 
-const CACHE_DIR = path.join(process.cwd(), "data", "embeddings");
-
-const CACHE_KEY = "google-gemini-embedding-2";
-
-const getEmbeddingFilePath = (id: string) =>
-  path.join(CACHE_DIR, `${CACHE_KEY}-${id}.json`);
-
 export async function loadOrGenerateEmbeddings(
-  emails: Email[]
+  emailChunks: EmailChunk[]
 ): Promise<{ id: string; embedding: number[] }[]> {
   // Ensure cache directory exists
-  await fs.mkdir(CACHE_DIR, { recursive: true });
+  await ensureEmbeddingsCacheDirectory();
 
   const results: { id: string; embedding: number[] }[] = [];
-  const uncachedEmails: Email[] = [];
+  const uncachedEmailChunks: EmailChunk[] = [];
 
   // Check cache for each email
-  for (const email of emails) {
+  for (const emailChunk of emailChunks) {
     try {
-      const cached = await fs.readFile(getEmbeddingFilePath(email.id), "utf-8");
-      const data = JSON.parse(cached);
-      results.push({ id: email.id, embedding: data.embedding });
+      const cached = await getCachedEmbedding(emailChunkToText(emailChunk));
+      if (cached) {
+        results.push({ id: emailChunk.id, embedding: cached });
+      } else {
+        // Cache miss - need to generate
+        uncachedEmailChunks.push(emailChunk);
+      }
     } catch {
       // Cache miss - need to generate
-      uncachedEmails.push(email);
+      uncachedEmailChunks.push(emailChunk);
     }
   }
 
   // Generate embeddings for uncached emails in batches of 99
-  if (uncachedEmails.length > 0) {
-    console.log(`Generating embeddings for ${uncachedEmails.length} emails`);
+  if (uncachedEmailChunks.length > 0) {
+    console.log(
+      `Generating embeddings for ${uncachedEmailChunks.length} emails`
+    );
 
     const BATCH_SIZE = 99;
-    for (let i = 0; i < uncachedEmails.length; i += BATCH_SIZE) {
-      const batch = uncachedEmails.slice(i, i + BATCH_SIZE);
+    for (let i = 0; i < uncachedEmailChunks.length; i += BATCH_SIZE) {
+      const batch = uncachedEmailChunks.slice(i, i + BATCH_SIZE);
       console.log(
         `Processing batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(
-          uncachedEmails.length / BATCH_SIZE
+          uncachedEmailChunks.length / BATCH_SIZE
         )}`
       );
 
       const { embeddings } = await embedMany({
-        model: 'google/gemini-embedding-2',
-        values: batch.map((e) => `${e.subject} ${e.body}`),
+        model: "voyage/voyage-4-large",
+        values: batch.map(emailChunkToText),
       });
 
       // Write batch to cache
       for (let j = 0; j < batch.length; j++) {
-        const email = batch[j];
+        const emailChunk = batch[j];
         const embedding = embeddings[j];
 
-        await fs.writeFile(
-          getEmbeddingFilePath(email.id),
-          JSON.stringify({ id: email.id, embedding })
-        );
-
-        results.push({ id: email.id, embedding });
+        await writeEmbeddingToCache(emailChunkToText(emailChunk), embedding);
+        results.push({ id: emailChunk.id, embedding });
       }
     }
   }
@@ -102,26 +147,29 @@ export async function loadOrGenerateEmbeddings(
   return results;
 }
 
-export async function searchWithEmbeddings(query: string, emails: Email[]) {
+export async function searchWithEmbeddings(
+  query: string,
+  emailChunks: EmailChunk[]
+) {
   // No query = no semantic ranking; return all emails with zero score
   if (!query.trim()) {
-    return emails.map((email) => ({ score: 0, email }));
+    return emailChunks.map((emailChunk) => ({ score: 0, emailChunk }));
   }
 
   // Load cached embeddings
-  const emailEmbeddings = await loadOrGenerateEmbeddings(emails);
+  const emailEmbeddings = await loadOrGenerateEmbeddings(emailChunks);
 
   // Generate query embedding
   const { embedding: queryEmbedding } = await embed({
-    model: "google/gemini-embedding-2",
+    model: "voyage/voyage-4-lite",
     value: query,
   });
 
   // Calculate similarity scores
   const results = emailEmbeddings.map(({ id, embedding }) => {
-    const email = emails.find((e) => e.id === id)!;
+    const emailChunk = emailChunks.find((e) => e.id === id)!;
     const score = cosineSimilarity(queryEmbedding, embedding);
-    return { score, email };
+    return { score, emailChunk };
   });
 
   // Sort by similarity descending
@@ -131,21 +179,21 @@ export async function searchWithEmbeddings(query: string, emails: Email[]) {
 const RRF_K = 60;
 
 export function reciprocalRankFusion(
-  rankings: { email: Email; score: number }[][]
-): { email: Email; score: number }[] {
+  rankings: { emailChunk: EmailChunk; score: number }[][]
+): { emailChunk: EmailChunk; score: number }[] {
   const rrfScores = new Map<string, number>();
-  const emailMap = new Map<string, Email>();
+  const emailChunkMap = new Map<string, EmailChunk>();
 
   // Process each ranking list (BM25 and embeddings)
   rankings.forEach((ranking) => {
     ranking.forEach((item, rank) => {
-      const currentScore = rrfScores.get(item.email.id) || 0;
+      const currentScore = rrfScores.get(item.emailChunk.id) || 0;
 
       // Position-based scoring: 1/(k+rank)
       const contribution = 1 / (RRF_K + rank);
-      rrfScores.set(item.email.id, currentScore + contribution);
+      rrfScores.set(item.emailChunk.id, currentScore + contribution);
 
-      emailMap.set(item.email.id, item.email);
+      emailChunkMap.set(item.emailChunk.id, item.emailChunk);
     });
   });
 
@@ -154,16 +202,19 @@ export function reciprocalRankFusion(
     .sort(([, scoreA], [, scoreB]) => scoreB - scoreA)
     .map(([emailId, score]) => ({
       score,
-      email: emailMap.get(emailId)!,
+      emailChunk: emailChunkMap.get(emailId)!,
     }));
 }
 
-export const searchWithRRF = async (query: string, emails: Email[]) => {
+export const searchWithRRF = async (
+  query: string,
+  emailChunks: EmailChunk[]
+) => {
   const bm25Ranking = await searchWithBM25(
     query.toLowerCase().split(" "),
-    emails
+    emailChunks
   );
-  const embeddingsRanking = await searchWithEmbeddings(query, emails);
+  const embeddingsRanking = await searchWithEmbeddings(query, emailChunks);
   const rrfRanking = reciprocalRankFusion([bm25Ranking, embeddingsRanking]);
   return rrfRanking;
 };

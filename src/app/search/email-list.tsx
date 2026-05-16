@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MailIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import { useState } from "react";
+import { EmailChunk } from "../search";
 
 type Email = {
   id: string;
@@ -14,6 +15,9 @@ type Email = {
   content: string;
   date: string;
   score?: number;
+
+  index: number;
+  totalChunks: number;
 };
 
 function EmailCard({ email }: { email: Email }) {
@@ -37,10 +41,10 @@ function EmailCard({ email }: { email: Email }) {
           <MailIcon className="h-4 w-4 text-primary" />
         </div>
         <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-4 mb-1">
+          <div className="flex items-start justify-between gap-4 mb-1">
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-base mb-0.5">
-                {email.subject}
+                {email.subject} (Chunk {email.index + 1} of {email.totalChunks})
               </h3>
               <p className="text-xs text-muted-foreground">{email.from}</p>
             </div>
