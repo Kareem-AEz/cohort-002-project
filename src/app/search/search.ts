@@ -2,6 +2,11 @@ import BM25 from "okapibm25";
 import fs from "fs/promises";
 import path from "path";
 import { embed, embedMany, cosineSimilarity } from "ai";
+import {
+  ensureEmbeddingsCacheDirectory,
+  getCachedEmbedding,
+  writeEmbeddingToCache,
+} from "@/app/embeddings";
 
 export interface Email {
   id: string;
@@ -19,9 +24,11 @@ export interface Email {
   phaseId?: number;
 }
 
+export const emailToText = (email: Email) => `${email.subject} ${email.body}`;
+
 export async function searchWithBM25(keywords: string[], emails: Email[]) {
   // Combine subject + body for richer text corpus
-  const corpus = emails.map((email) => `${email.subject} ${email.body}`);
+  const corpus = emails.map(emailToText);
 
   // BM25 returns score array matching corpus order
   const scores: number[] = (BM25 as any)(corpus, keywords);
@@ -38,18 +45,11 @@ export async function loadEmails(): Promise<Email[]> {
   return JSON.parse(fileContent);
 }
 
-const CACHE_DIR = path.join(process.cwd(), "data", "embeddings");
-
-const CACHE_KEY = "google-gemini-embedding-2";
-
-const getEmbeddingFilePath = (id: string) =>
-  path.join(CACHE_DIR, `${CACHE_KEY}-${id}.json`);
-
 export async function loadOrGenerateEmbeddings(
   emails: Email[]
 ): Promise<{ id: string; embedding: number[] }[]> {
   // Ensure cache directory exists
-  await fs.mkdir(CACHE_DIR, { recursive: true });
+  await ensureEmbeddingsCacheDirectory();
 
   const results: { id: string; embedding: number[] }[] = [];
   const uncachedEmails: Email[] = [];
@@ -57,9 +57,13 @@ export async function loadOrGenerateEmbeddings(
   // Check cache for each email
   for (const email of emails) {
     try {
-      const cached = await fs.readFile(getEmbeddingFilePath(email.id), "utf-8");
-      const data = JSON.parse(cached);
-      results.push({ id: email.id, embedding: data.embedding });
+      const cached = await getCachedEmbedding(emailToText(email));
+      if (cached) {
+        results.push({ id: email.id, embedding: cached });
+      } else {
+        // Cache miss - need to generate
+        uncachedEmails.push(email);
+      }
     } catch {
       // Cache miss - need to generate
       uncachedEmails.push(email);
@@ -80,8 +84,8 @@ export async function loadOrGenerateEmbeddings(
       );
 
       const { embeddings } = await embedMany({
-        model: "google/gemini-embedding-2",
-        values: batch.map((e) => `${e.subject} ${e.body}`),
+        model: "voyage/voyage-4-large",
+        values: batch.map(emailToText),
       });
 
       // Write batch to cache
@@ -89,11 +93,7 @@ export async function loadOrGenerateEmbeddings(
         const email = batch[j];
         const embedding = embeddings[j];
 
-        await fs.writeFile(
-          getEmbeddingFilePath(email.id),
-          JSON.stringify({ id: email.id, embedding })
-        );
-
+        await writeEmbeddingToCache(emailToText(email), embedding);
         results.push({ id: email.id, embedding });
       }
     }
@@ -113,7 +113,7 @@ export async function searchWithEmbeddings(query: string, emails: Email[]) {
 
   // Generate query embedding
   const { embedding: queryEmbedding } = await embed({
-    model: "google/gemini-embedding-2",
+    model: "voyage/voyage-4-lite",
     value: query,
   });
 
