@@ -1,7 +1,7 @@
 import BM25 from "okapibm25";
 import fs from "fs/promises";
 import path from "path";
-import { embed, embedMany, cosineSimilarity } from "ai";
+import { embed, embedMany, cosineSimilarity, JSONValue } from "ai";
 import {
   ensureEmbeddingsCacheDirectory,
   getCachedEmbedding,
@@ -34,6 +34,7 @@ export interface EmailChunk {
   from: string;
   to: string | string[];
   timestamp: string;
+  [key: string]: JSONValue;
 }
 
 const textSplitter = new RecursiveCharacterTextSplitter({

@@ -1,3 +1,4 @@
+import { reranker } from "@/app/rerank";
 import {
   EmailChunk,
   emailToChunks,
@@ -48,10 +49,24 @@ export const searchTool = tool({
     // Sort the results by score
     const sortedResults = rrfResults.sort((a, b) => b.score - a.score);
     const topEmailChunks: SearchToolResultItem[] = sortedResults
-      .slice(0, 10)
+      .slice(0, 30)
       .map((result) => ({ ...result.emailChunk, score: result.score }));
 
+    let rerankedEmailChunks: EmailChunk[] = [];
+    if (searchQuery) {
+      rerankedEmailChunks = (await reranker(searchQuery, topEmailChunks)).slice(
+        0,
+        10
+      );
+      console.log(
+        "Reranked email chunks:",
+        rerankedEmailChunks.map((chunk) => chunk.subject)
+      );
+    } else {
+      rerankedEmailChunks = topEmailChunks.slice(0, 10);
+    }
+
     // Return the top 10 results
-    return { emailChunks: topEmailChunks };
+    return { emailChunks: rerankedEmailChunks };
   },
 });
