@@ -7,6 +7,7 @@ import {
   getCachedEmbedding,
   writeEmbeddingToCache,
 } from "@/app/embeddings";
+import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 
 export interface Email {
   id: string;
@@ -23,6 +24,44 @@ export interface Email {
   arcId?: string;
   phaseId?: number;
 }
+
+export interface EmailChunk {
+  id: string;
+  subject: string;
+  chunk: string;
+  index: number;
+  totalChunks: number;
+  from: string;
+  to: string | string[];
+  timestamp: string;
+}
+
+const textSplitter = new RecursiveCharacterTextSplitter({
+  chunkSize: 1000,
+  chunkOverlap: 100,
+  separators: ["\n\n", "\n", " ", ""],
+});
+
+export const emailToChunks = async (emails: Email[]): Promise<EmailChunk[]> => {
+  const emailChunks: EmailChunk[] = [];
+
+  for (const email of emails) {
+    const chunks = await textSplitter.splitText(email.body);
+    chunks.forEach((chunk, index) => {
+      emailChunks.push({
+        id: email.id,
+        subject: email.subject,
+        chunk,
+        index,
+        from: email.from,
+        to: email.to,
+        timestamp: email.timestamp,
+        totalChunks: chunks.length,
+      });
+    });
+  }
+  return emailChunks;
+};
 
 export const emailToText = (email: Email) => `${email.subject} ${email.body}`;
 
