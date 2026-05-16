@@ -13,20 +13,31 @@ import z from "zod";
 export type SearchToolResultItem = EmailChunk & { score: number };
 
 export const searchTool = tool({
-  description:
-    "Search emails using both keyword and semantic search. Returns most relevant emails ranked by reciprocal rank fusion.",
-  inputSchema: z.object({
-    keywords: z
-      .array(z.string())
-      .describe(
-        "Exact keywords for BM25 search (names, amounts, specific terms)"
-      )
-      .optional(),
-    searchQuery: z
-      .string()
-      .describe("Natural language query for semantic search (broader concepts)")
-      .optional(),
-  }),
+  description: [
+    "Rank emails by relevance using keyword (BM25) and semantic (embedding) search, fused with reciprocal rank fusion and reranked when a natural language query is provided.",
+    "Returns the top 10 matching email chunks (excerpts, not whole emails).",
+    "Use this for topical or open-ended questions, like 'what did we decide about pricing?' or 'any updates on the Q3 launch?'.",
+    "Do NOT use this when the user names exact metadata such as sender, recipient, or a date range. Use the filter tool for those.",
+    "Provide `keywords` for terms expected to appear verbatim (names, amounts, IDs) and `searchQuery` for conceptual matches. You can pass both or just one, but at least one is required.",
+  ].join(" "),
+  inputSchema: z
+    .object({
+      keywords: z
+        .array(z.string())
+        .describe(
+          "Terms expected to appear verbatim in matching emails, for example names, amounts, or product codes. Used for BM25 ranking."
+        )
+        .optional(),
+      searchQuery: z
+        .string()
+        .describe(
+          "Natural language description of what the user wants conceptually. Used for embedding-based ranking and reranking."
+        )
+        .optional(),
+    })
+    .refine((data) => data.keywords?.length || data.searchQuery, {
+      error: "Provide keywords, searchQuery, or both.",
+    }),
   execute: async ({ keywords, searchQuery }) => {
     console.log("Keywords:", keywords);
     console.log("Search query:", searchQuery);

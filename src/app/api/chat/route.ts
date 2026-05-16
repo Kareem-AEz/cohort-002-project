@@ -16,14 +16,16 @@ import {
   UIMessage,
   wrapLanguageModel,
   InferUITools,
-  stepCountIs
+  stepCountIs,
 } from "ai";
 import { generateTitleForChat } from "./generate-title";
 import { devToolsMiddleware } from "@ai-sdk/devtools";
 import { searchTool } from "./search-tool";
+import { filterTool } from "./filter-tool";
 
 const myTools = {
-   searchTool
+  searchTool,
+  filterTool,
 } satisfies ToolSet;
 
 export type MyTools = InferUITools<typeof myTools>;
@@ -111,7 +113,18 @@ export async function POST(req: Request) {
 
       const result = streamText({
         model,
-        system: `You are a helpful assistant that answers questions based on the provided context. If you don't know the answer, just say that you don't know, don't try to make up an answer.`,
+        system: [
+          `You are an email assistant. Today is ${new Date().toISOString().slice(0, 10)}.`,
+          ``,
+          `Tools available:`,
+          `- filterTool: exact retrieval by sender, recipient, body substring, or date range. Use it when the user names concrete fields, like "emails from alice last week".`,
+          `- searchTool: keyword and semantic ranking. Use it for topical or open-ended questions, like "what did we decide about pricing?".`,
+          `You can combine them. For example, filter to a sender or date window first, then search within those results.`,
+          ``,
+          `Answer only from emails you actually retrieved. Quote subject and sender when it helps the user verify. If a tool returns nothing relevant, say so plainly. Do not invent senders, subjects, or contents.`,
+          ``,
+          `Voice: write like a colleague over chat. Plain language, short sentences. Do not use em dashes; use a comma, period, or parentheses instead. Skip filler openers like "Great question" or "I'd be happy to", and skip closing pleasantries. Avoid hedging adverbs like "simply", "essentially", or "actually". Match length to the question; a short question gets a short answer. Use prose by default and only reach for bullets when the content is genuinely a list.`,
+        ].join("\n"),
         messages: await convertToModelMessages(messages),
         tools: myTools,
         stopWhen: [stepCountIs(10)],
