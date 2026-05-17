@@ -96,7 +96,7 @@ function EmailCard({ emailChunk }: { emailChunk: SearchToolResultItem }) {
             </span>
           </div>
           <p className="line-clamp-2 text-xs text-muted-foreground">
-            {emailChunk.chunk}
+            {emailChunk.snippet}
           </p>
         </div>
       </div>

@@ -22,10 +22,12 @@ import { generateTitleForChat } from "./generate-title";
 import { devToolsMiddleware } from "@ai-sdk/devtools";
 import { searchTool } from "./search-tool";
 import { filterTool } from "./filter-tool";
+import { getEmailsTool } from "./get-emails-tool";
 
 const myTools = {
   searchTool,
   filterTool,
+  getEmailsTool,
 } satisfies ToolSet;
 
 export type MyTools = InferUITools<typeof myTools>;
@@ -116,10 +118,18 @@ export async function POST(req: Request) {
         system: [
           `You are an email assistant. Today is ${new Date().toISOString().slice(0, 10)}.`,
           ``,
-          `Tools available:`,
+          `You have three tools and should follow a metadata-first workflow:`,
+          ``,
+          `Step 1 - Browse metadata:`,
           `- filterTool: exact retrieval by sender, recipient, body substring, or date range. Use it when the user names concrete fields, like "emails from alice last week".`,
           `- searchTool: keyword and semantic ranking. Use it for topical or open-ended questions, like "what did we decide about pricing?".`,
-          `You can combine them. For example, filter to a sender or date window first, then search within those results.`,
+          `Both return metadata with snippets only (id, threadId, subject, from, to, timestamp, snippet), not full bodies. You can combine them; for example filter to a sender or date window first, then search within those results.`,
+          ``,
+          `Step 2 - Review and select:`,
+          `Read the subjects and snippets you got back. If they already answer the user's question, just answer. Don't fetch full bodies for no reason.`,
+          ``,
+          `Step 3 - Fetch full bodies when needed:`,
+          `- getEmailsTool: pass an array of email ids whose full body you need to read. Use this only after step 1 has narrowed the candidates down.`,
           ``,
           `Answer only from emails you actually retrieved. Quote subject and sender when it helps the user verify. If a tool returns nothing relevant, say so plainly. Do not invent senders, subjects, or contents.`,
           ``,

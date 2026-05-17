@@ -2,10 +2,23 @@ import { Email, loadEmails } from "@/app/search";
 import { tool } from "ai";
 import { z } from "zod";
 
+const SNIPPET_LENGTH = 150;
+
+export type FilterToolResultItem = {
+  id: string;
+  threadId: string;
+  subject: string;
+  from: string;
+  to: string | string[];
+  timestamp: string;
+  snippet: string;
+};
+
 export const filterTool = tool({
   description: [
     "Retrieve emails by exact metadata: sender, recipient, body substring, or date range.",
-    "Returns whole emails (not chunks), capped by `limit`. All provided filters are combined with AND; substring matches are case-insensitive.",
+    "Returns metadata with snippets only (id, threadId, subject, from, to, timestamp, snippet). Use `getEmailsTool` to fetch the full body of specific emails after reviewing the snippets.",
+    "All provided filters are combined with AND; substring matches are case-insensitive.",
     "Use this when the user names concrete fields, for example 'emails from alice@acme.com last week' or 'messages to the legal team mentioning invoice'.",
     "Do NOT use this for open-ended or topical questions like 'what did we discuss about pricing?'. Use the search tool for those, since it ranks by relevance.",
     "Omit any filter you don't need rather than passing an empty string.",
@@ -71,6 +84,22 @@ export const filterTool = tool({
     }
     filteredEmails = filteredEmails.slice(0, limit);
 
-    return { emails: filteredEmails };
+    const results: FilterToolResultItem[] = filteredEmails.map((email) => {
+      const trimmed = email.body.slice(0, SNIPPET_LENGTH).trim();
+      const snippet =
+        email.body.length > SNIPPET_LENGTH ? `${trimmed}...` : trimmed;
+
+      return {
+        id: email.id,
+        threadId: email.threadId,
+        subject: email.subject,
+        from: email.from,
+        to: email.to,
+        timestamp: email.timestamp,
+        snippet,
+      };
+    });
+
+    return { emails: results };
   },
 });

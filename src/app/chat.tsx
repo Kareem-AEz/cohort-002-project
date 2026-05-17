@@ -30,6 +30,7 @@ import {
 } from "@/components/ai-elements/reasoning";
 import { Response } from "@/components/ai-elements/response";
 import { FilterToolResult } from "@/components/ai-elements/filter-tool-result";
+import { GetEmailsToolResult } from "@/components/ai-elements/get-emails-tool-result";
 import { SearchToolResult } from "@/components/ai-elements/search-tool-result";
 import {
   Source,
@@ -185,6 +186,13 @@ export const Chat = (props: { chat: DB.Chat | null }) => {
                   case "tool-filterTool":
                     return (
                       <FilterToolResult
+                        key={`${message.id}-${i}`}
+                        part={part}
+                      />
+                    );
+                  case "tool-getEmailsTool":
+                    return (
+                      <GetEmailsToolResult
                         key={`${message.id}-${i}`}
                         part={part}
                       />

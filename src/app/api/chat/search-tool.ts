@@ -10,12 +10,23 @@ import {
 import { tool } from "ai";
 import z from "zod";
 
-export type SearchToolResultItem = EmailChunk & { score: number };
+const SNIPPET_LENGTH = 150;
+
+export type SearchToolResultItem = {
+  id: string;
+  threadId: string;
+  subject: string;
+  from: string;
+  to: string | string[];
+  timestamp: string;
+  score: number;
+  snippet: string;
+};
 
 export const searchTool = tool({
   description: [
     "Rank emails by relevance using keyword (BM25) and semantic (embedding) search, fused with reciprocal rank fusion and reranked when a natural language query is provided.",
-    "Returns the top 10 matching email chunks (excerpts, not whole emails).",
+    "Returns metadata with snippets only (id, threadId, subject, from, to, timestamp, score, snippet). Use `getEmailsTool` to fetch the full body of specific emails after reviewing the snippets.",
     "Use this for topical or open-ended questions, like 'what did we decide about pricing?' or 'any updates on the Q3 launch?'.",
     "Do NOT use this when the user names exact metadata such as sender, recipient, or a date range. Use the filter tool for those.",
     "Provide `keywords` for terms expected to appear verbatim (names, amounts, IDs) and `searchQuery` for conceptual matches. You can pass both or just one, but at least one is required.",
@@ -59,11 +70,13 @@ export const searchTool = tool({
 
     // Sort the results by score
     const sortedResults = rrfResults.sort((a, b) => b.score - a.score);
-    const topEmailChunks: SearchToolResultItem[] = sortedResults
-      .slice(0, 30)
-      .map((result) => ({ ...result.emailChunk, score: result.score }));
+    const topEmailChunks = sortedResults.slice(0, 30).map((result) => ({
+      ...result.emailChunk,
+      score: result.score,
+    }));
+    const scoreById = new Map(topEmailChunks.map((c) => [c.id, c.score]));
 
-    let rerankedEmailChunks: EmailChunk[] = [];
+    let rerankedEmailChunks: EmailChunk[];
     if (searchQuery) {
       rerankedEmailChunks = (await reranker(searchQuery, topEmailChunks)).slice(
         0,
@@ -77,7 +90,27 @@ export const searchTool = tool({
       rerankedEmailChunks = topEmailChunks.slice(0, 10);
     }
 
-    // Return the top 10 results
-    return { emailChunks: rerankedEmailChunks };
+    const emailsById = new Map(allEmails.map((email) => [email.id, email]));
+
+    const emailChunkResults: SearchToolResultItem[] = rerankedEmailChunks.map(
+      (chunk) => {
+        const trimmed = chunk.chunk.slice(0, SNIPPET_LENGTH).trim();
+        const snippet =
+          chunk.chunk.length > SNIPPET_LENGTH ? `${trimmed}...` : trimmed;
+
+        return {
+          id: chunk.id,
+          threadId: emailsById.get(chunk.id)?.threadId ?? "",
+          subject: chunk.subject,
+          from: chunk.from,
+          to: chunk.to,
+          timestamp: chunk.timestamp,
+          score: scoreById.get(chunk.id) ?? 0,
+          snippet,
+        };
+      }
+    );
+
+    return { emailChunks: emailChunkResults };
   },
 });

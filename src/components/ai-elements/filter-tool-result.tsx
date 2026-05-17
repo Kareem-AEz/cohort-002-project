@@ -1,6 +1,6 @@
 "use client";
 
-import { Email } from "@/app/search";
+import { FilterToolResultItem } from "@/app/api/chat/filter-tool";
 import {
   Tool,
   ToolContent,
@@ -30,7 +30,7 @@ type FilterToolInput = {
 };
 
 type FilterToolOutput = {
-  emails: Email[];
+  emails: FilterToolResultItem[];
 };
 
 type ActiveFilter = {
@@ -141,7 +141,7 @@ function formatDate(value: string): string {
   return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString();
 }
 
-function EmailRow({ email }: { email: Email }) {
+function EmailRow({ email }: { email: FilterToolResultItem }) {
   const recipients = Array.isArray(email.to) ? email.to.join(", ") : email.to;
 
   return (
@@ -165,7 +165,7 @@ function EmailRow({ email }: { email: Email }) {
             </span>
           </div>
           <p className="line-clamp-2 text-muted-foreground text-xs">
-            {email.body}
+            {email.snippet}
           </p>
         </div>
       </div>
