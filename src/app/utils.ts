@@ -1,3 +1,4 @@
+import { DB } from "@/lib/persistence-layer";
 import { MyMessage } from "./api/chat/route";
 
 /**
@@ -68,4 +69,25 @@ export const messageHistoryToQuery = (messages: MyMessage[]) => {
     .join("\n");
 
   return query;
+};
+
+// src/app/utils.ts
+// ADDED: New utility to convert chat to text format for LLM processing
+export const chatToText = (chat: DB.Chat): string => {
+  const frontmatter = [`Title: ${chat.title}`];
+
+  // ADDED: Include LLM summary if it exists
+  const summary = chat.llmSummary
+    ? [
+        `Summary: ${chat.llmSummary.summary}`,
+        `What Worked Well: ${chat.llmSummary.whatWorkedWell}`,
+        `What To Avoid: ${chat.llmSummary.whatToAvoid}`,
+        `Tags: ${chat.llmSummary.tags.join(", ")}`,
+      ]
+    : [];
+
+  // ADDED: Convert all messages to text format
+  const messages = chat.messages.map(messageToText).join("\n");
+
+  return [...frontmatter, ...summary, messages].join("\n");
 };
