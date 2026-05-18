@@ -25,6 +25,7 @@ import { filterTool } from "./filter-tool";
 import { getEmailsTool } from "./get-emails-tool";
 import { memoryToText, searchMemories } from "@/app/memory-search";
 import { extractAndUpdateMemories } from "./extract-memories";
+import { searchMessages } from "@/app/message-search";
 
 const myTools = {
   searchTool,
@@ -38,6 +39,8 @@ export type MyTools = InferUITools<typeof myTools>;
 export const maxDuration = 30;
 
 const MEMORIES_TO_USE = 3;
+const MESSAGE_HISTORY_TO_SEARCH = 10;
+const OLD_MESSAGES_TO_SEARCH = 20;
 
 export type MyMessage = UIMessage<
   never,
@@ -55,26 +58,32 @@ const model = wrapLanguageModel({
 
 export async function POST(req: Request) {
   const body: {
-    message: UIMessage;
+    message: MyMessage;
     id: string;
   } = await req.json();
 
   const chatId = body.id;
 
   let chat = await getChat(chatId);
-  if (!chat) {
-    return new Response("Chat not found", { status: 404 });
-  }
+
+  console.log("chat id", chatId);
 
   const validatedMessagesResult = await safeValidateUIMessages<MyMessage>({
-    messages: [...chat.messages, body.message],
+    messages: [...(chat?.messages || []), body.message],
   });
 
   if (!validatedMessagesResult.success) {
+    console.log(
+      "validatedMessagesResult",
+      validatedMessagesResult.error.message
+    );
     return new Response(validatedMessagesResult.error.message, { status: 400 });
   }
 
   const messages = validatedMessagesResult.data;
+
+  const recentMessages = messages.slice(-MESSAGE_HISTORY_TO_SEARCH); // gets the most recent MESSAGE_HISTORY_TO_SEARCH messages
+  const olderMessages = messages.slice(0, -MESSAGE_HISTORY_TO_SEARCH); // gets all earlier messages except the most recent MESSAGE_HISTORY_TO_SEARCH
 
   const mostRecentMessage = messages[messages.length - 1];
 
@@ -90,6 +99,18 @@ export async function POST(req: Request) {
 
   const memories = await searchMemories({ messages });
   const memoriesToUse = memories.slice(0, MEMORIES_TO_USE);
+
+  const oldMessagesToUse = await searchMessages({
+    recentMessages,
+    olderMessages,
+  }).then((results) =>
+    results.slice(0, OLD_MESSAGES_TO_SEARCH).map((result) => result.item)
+  );
+
+  console.log("oldMessagesToUse", oldMessagesToUse.length);
+  const messageHistoryToUse = [...oldMessagesToUse, ...recentMessages];
+
+  console.log("messageHistoryToUse", messageHistoryToUse.length);
 
   const stream = createUIMessageStream<MyMessage>({
     execute: async ({ writer }) => {
@@ -147,7 +168,7 @@ export async function POST(req: Request) {
           `Voice: write like a colleague over chat. Plain language, short sentences. Do not use em dashes; use a comma, period, or parentheses instead. Skip filler openers like "Great question" or "I'd be happy to", and skip closing pleasantries. Avoid hedging adverbs like "simply", "essentially", or "actually". Match length to the question; a short question gets a short answer. Use prose by default and only reach for bullets when the content is genuinely a list.`,
           `You have access to the following memories:
           <memories>
-          ${memories
+          ${memoriesToUse
             .map((memory) => [
               `<memory id="${memory.item.id}">`,
               memoryToText(memory.item),
@@ -156,7 +177,7 @@ export async function POST(req: Request) {
             .join("\n")}          
           </memories>`,
         ].join("\n"),
-        messages: await convertToModelMessages(messages),
+        messages: await convertToModelMessages(messageHistoryToUse),
         tools: myTools,
         stopWhen: [stepCountIs(10)],
         // src/app/api/chat/route.ts
@@ -174,10 +195,11 @@ export async function POST(req: Request) {
     generateId: () => crypto.randomUUID(),
     onFinish: async ({ responseMessage }) => {
       await appendToChatMessages(chatId, [responseMessage]);
-      // ADDED: Extract and update memories from the conversation
       await extractAndUpdateMemories({
         messages: [...messages, responseMessage],
         memories: memories.map((memory) => memory.item),
+      }).catch((err) => {
+        console.error("Memory extraction failed:", err);
       });
     },
   });

@@ -76,7 +76,7 @@ export const Chat = (props: { chat: DB.Chat | null }) => {
         return {
           body: {
             id: request.body?.id,
-            messages: request.messages[request.messages.length - 1],
+            message: request.messages[request.messages.length - 1],
           },
         };
       },

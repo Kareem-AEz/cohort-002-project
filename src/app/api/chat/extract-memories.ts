@@ -5,16 +5,17 @@ import {
   loadMemories,
   updateMemory,
 } from "@/lib/persistence-layer";
-import { google } from "@ai-sdk/google";
 import {
   convertToModelMessages,
-  generateObject,
   generateText,
   Output,
+  wrapLanguageModel,
+  gateway,
 } from "ai";
 import { z } from "zod";
 import { MyMessage } from "./route";
 import { memoryToText } from "@/app/memory-search";
+import { devToolsMiddleware } from "@ai-sdk/devtools";
 
 export async function extractAndUpdateMemories(opts: {
   messages: MyMessage[];
@@ -27,8 +28,14 @@ export async function extractAndUpdateMemories(opts: {
 
   // src/app/api/chat/extract-memories.ts
 
+  const model = wrapLanguageModel({
+    model: gateway("deepseek/deepseek-v4-flash"),
+    middleware:
+      process.env.NODE_ENV === "development" ? [devToolsMiddleware()] : [],
+  });
+
   const memoriesResult = await generateText({
-    model: google("gemini-2.5-flash"),
+    model,
     output: Output.object({
       name: "memories",
       description: "The memories to update",
