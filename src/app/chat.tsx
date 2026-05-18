@@ -46,6 +46,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { Fragment, startTransition, useState } from "react";
 import type { MyMessage } from "./api/chat/route";
 import { useFocusWhenNoChatIdPresent } from "./use-focus-chat-when-new-chat-button-pressed";
+import { DefaultChatTransport } from "ai";
 
 export const Chat = (props: { chat: DB.Chat | null }) => {
   const [backupChatId, setBackupChatId] = useState(crypto.randomUUID());
@@ -70,6 +71,16 @@ export const Chat = (props: { chat: DB.Chat | null }) => {
       router.refresh();
     },
     generateId: () => crypto.randomUUID(),
+    transport: new DefaultChatTransport({
+      prepareSendMessagesRequest: async (request) => {
+        return {
+          body: {
+            id: request.body?.id,
+            messages: request.messages[request.messages.length - 1],
+          },
+        };
+      },
+    }),
   });
 
   const ref = useFocusWhenNoChatIdPresent(chatIdFromSearchParams);
