@@ -3,12 +3,14 @@ import { DB, getChat, updateChatLLMSummary } from "@/lib/persistence-layer";
 import { google } from "@ai-sdk/google";
 import {
   convertToModelMessages,
-  generateObject,
+  gateway,
   generateText,
   Output,
+  wrapLanguageModel,
 } from "ai";
 import { z } from "zod";
 import { chatToText } from "./utils";
+import { devToolsMiddleware } from "@ai-sdk/devtools";
 
 // Inspired by: https://github.com/ALucek/agentic-memory/blob/main/langgraph/agentic_memory_langgraph.ipynb
 const SYSTEM_PROMPT = `
@@ -84,9 +86,16 @@ export const reflectOnChat = async (chatId: string) => {
     throw new Error(`Chat with ID ${chatId} not found`);
   }
 
+  const model = wrapLanguageModel({
+    model: gateway("deepseek/deepseek-v4-flash"),
+    middleware:
+      process.env.NODE_ENV === "development" ? [devToolsMiddleware()] : [],
+  });
+
   // ADDED: Call LLM to generate structured reflection
   const result = await generateText({
-    model: google("gemini-2.5-flash-lite"),
+    model,
+    maxOutputTokens: 2000,
     output: Output.object({
       name: "reflection",
       description: "The reflection on the chat",

@@ -26,6 +26,9 @@ import { getEmailsTool } from "./get-emails-tool";
 import { memoryToText, searchMemories } from "@/app/memory-search";
 import { extractAndUpdateMemories } from "./extract-memories";
 import { searchMessages } from "@/app/message-search";
+import { searchForRelatedChats } from "@/app/search-for-related-chats";
+import { chatToText } from "@/app/utils";
+import { reflectOnChat } from "@/app/reflect-on-chat";
 
 const myTools = {
   searchTool,
@@ -144,6 +147,10 @@ export async function POST(req: Request) {
       } else {
         await appendToChatMessages(chatId, [mostRecentMessage]);
       }
+      const relatedChats = await searchForRelatedChats(
+        chatId,
+        messageHistoryToUse
+      );
 
       const result = streamText({
         model,
@@ -175,7 +182,17 @@ export async function POST(req: Request) {
               "</memory>",
             ])
             .join("\n")}          
-          </memories>`,
+          </memories>
+          
+          <related-chats>
+            Here are some related chats that may be relevant to the conversation:
+
+            ${relatedChats
+              .map((chat) => ["<chat>", chatToText(chat.item), "</chat>"])
+              .join("\n")}
+          </related-chats>
+
+`,
         ].join("\n"),
         messages: await convertToModelMessages(messageHistoryToUse),
         tools: myTools,
@@ -193,14 +210,24 @@ export async function POST(req: Request) {
       await generateTitlePromise;
     },
     generateId: () => crypto.randomUUID(),
+    // src/app/api/chat/route.ts
     onFinish: async ({ responseMessage }) => {
       await appendToChatMessages(chatId, [responseMessage]);
-      await extractAndUpdateMemories({
-        messages: [...messages, responseMessage],
-        memories: memories.map((memory) => memory.item),
-      }).catch((err) => {
-        console.error("Memory extraction failed:", err);
-      });
+
+      try {
+        await extractAndUpdateMemories({
+          messages: [...messages, responseMessage],
+          memories: memories.map((memory) => memory.item),
+        });
+      } catch (error) {
+        console.error("extractAndUpdateMemories failed:", error);
+      }
+
+      try {
+        await reflectOnChat(chatId);
+      } catch (error) {
+        console.error("reflectOnChat failed:", error);
+      }
     },
   });
 

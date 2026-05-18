@@ -36,6 +36,7 @@ export async function extractAndUpdateMemories(opts: {
 
   const memoriesResult = await generateText({
     model,
+    maxOutputTokens: 2000,
     output: Output.object({
       name: "memories",
       description: "The memories to update",
