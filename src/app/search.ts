@@ -67,19 +67,20 @@ export const emailToChunks = async (emails: Email[]): Promise<EmailChunk[]> => {
   return emailChunks;
 };
 
-export async function searchWithBM25(
+export async function searchWithBM25<T>(
   keywords: string[],
-  emailChunks: EmailChunk[]
+  items: T[],
+  itemToText: (item: T) => string
 ) {
   // Combine subject + body for richer text corpus
-  const corpus = emailChunks.map(emailChunkToText);
+  const corpus = items.flatMap((item) => itemToText(item));
 
   // BM25 returns score array matching corpus order
   const scores: number[] = (BM25 as any)(corpus, keywords);
 
   // Map scores to emails, sort descending
   return scores
-    .map((score, idx) => ({ score, emailChunk: emailChunks[idx] }))
+    .map((score, idx) => ({ score, item: items[idx] }))
     .sort((a, b) => b.score - a.score);
 }
 
@@ -89,58 +90,57 @@ export async function loadEmails(): Promise<Email[]> {
   return JSON.parse(fileContent);
 }
 
-export async function loadOrGenerateEmbeddings(
-  emailChunks: EmailChunk[]
-): Promise<{ id: string; embedding: number[] }[]> {
+export async function loadOrGenerateEmbeddings<T>(
+  items: T[],
+  itemToText: (item: T) => string
+): Promise<{ item: T; embedding: number[] }[]> {
   // Ensure cache directory exists
   await ensureEmbeddingsCacheDirectory();
 
-  const results: { id: string; embedding: number[] }[] = [];
-  const uncachedEmailChunks: EmailChunk[] = [];
+  const results: { item: T; embedding: number[] }[] = [];
+  const uncachedItems: T[] = [];
 
   // Check cache for each email
-  for (const emailChunk of emailChunks) {
+  for (const item of items) {
     try {
-      const cached = await getCachedEmbedding(emailChunkToText(emailChunk));
+      const cached = await getCachedEmbedding(itemToText(item));
       if (cached) {
-        results.push({ id: emailChunk.id, embedding: cached });
+        results.push({ item, embedding: cached });
       } else {
         // Cache miss - need to generate
-        uncachedEmailChunks.push(emailChunk);
+        uncachedItems.push(item);
       }
     } catch {
       // Cache miss - need to generate
-      uncachedEmailChunks.push(emailChunk);
+      uncachedItems.push(item);
     }
   }
 
   // Generate embeddings for uncached emails in batches of 99
-  if (uncachedEmailChunks.length > 0) {
-    console.log(
-      `Generating embeddings for ${uncachedEmailChunks.length} emails`
-    );
+  if (uncachedItems.length > 0) {
+    console.log(`Generating embeddings for ${uncachedItems.length} items`);
 
     const BATCH_SIZE = 99;
-    for (let i = 0; i < uncachedEmailChunks.length; i += BATCH_SIZE) {
-      const batch = uncachedEmailChunks.slice(i, i + BATCH_SIZE);
+    for (let i = 0; i < uncachedItems.length; i += BATCH_SIZE) {
+      const batch = uncachedItems.slice(i, i + BATCH_SIZE);
       console.log(
         `Processing batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(
-          uncachedEmailChunks.length / BATCH_SIZE
+          uncachedItems.length / BATCH_SIZE
         )}`
       );
 
       const { embeddings } = await embedMany({
         model: "voyage/voyage-4-large",
-        values: batch.map(emailChunkToText),
+        values: batch.map(itemToText),
       });
 
       // Write batch to cache
       for (let j = 0; j < batch.length; j++) {
-        const emailChunk = batch[j];
+        const item = batch[j];
         const embedding = embeddings[j];
 
-        await writeEmbeddingToCache(emailChunkToText(emailChunk), embedding);
-        results.push({ id: emailChunk.id, embedding });
+        await writeEmbeddingToCache(itemToText(item), embedding);
+        results.push({ item, embedding });
       }
     }
   }
@@ -148,17 +148,18 @@ export async function loadOrGenerateEmbeddings(
   return results;
 }
 
-export async function searchWithEmbeddings(
+export async function searchWithEmbeddings<T>(
   query: string,
-  emailChunks: EmailChunk[]
+  items: T[],
+  itemToText: (item: T) => string
 ) {
   // No query = no semantic ranking; return all emails with zero score
   if (!query.trim()) {
-    return emailChunks.map((emailChunk) => ({ score: 0, emailChunk }));
+    return items.map((item) => ({ score: 0, item }));
   }
 
   // Load cached embeddings
-  const emailEmbeddings = await loadOrGenerateEmbeddings(emailChunks);
+  const itemEmbeddings = await loadOrGenerateEmbeddings(items, itemToText);
 
   // Generate query embedding
   const { embedding: queryEmbedding } = await embed({
@@ -167,10 +168,9 @@ export async function searchWithEmbeddings(
   });
 
   // Calculate similarity scores
-  const results = emailEmbeddings.map(({ id, embedding }) => {
-    const emailChunk = emailChunks.find((e) => e.id === id)!;
+  const results = itemEmbeddings.map(({ item, embedding }) => {
     const score = cosineSimilarity(queryEmbedding, embedding);
-    return { score, emailChunk };
+    return { score, item };
   });
 
   // Sort by similarity descending
@@ -179,31 +179,32 @@ export async function searchWithEmbeddings(
 
 const RRF_K = 60;
 
-export function reciprocalRankFusion(
-  rankings: { emailChunk: EmailChunk; score: number }[][]
-): { emailChunk: EmailChunk; score: number }[] {
+export function reciprocalRankFusion<T>(
+  rankings: { item: T; score: number }[][],
+  toId: (item: T) => string
+): { item: T; score: number }[] {
   const rrfScores = new Map<string, number>();
-  const emailChunkMap = new Map<string, EmailChunk>();
+  const itemMap = new Map<string, T>();
 
   // Process each ranking list (BM25 and embeddings)
   rankings.forEach((ranking) => {
     ranking.forEach((item, rank) => {
-      const currentScore = rrfScores.get(item.emailChunk.id) || 0;
+      const currentScore = rrfScores.get(toId(item.item)) || 0;
 
       // Position-based scoring: 1/(k+rank)
       const contribution = 1 / (RRF_K + rank);
-      rrfScores.set(item.emailChunk.id, currentScore + contribution);
+      rrfScores.set(toId(item.item), currentScore + contribution);
 
-      emailChunkMap.set(item.emailChunk.id, item.emailChunk);
+      itemMap.set(toId(item.item), item.item);
     });
   });
 
   // Sort by combined RRF score descending
   return Array.from(rrfScores.entries())
     .sort(([, scoreA], [, scoreB]) => scoreB - scoreA)
-    .map(([emailId, score]) => ({
+    .map(([toId, score]) => ({
       score,
-      emailChunk: emailChunkMap.get(emailId)!,
+      item: itemMap.get(toId)!,
     }));
 }
 
@@ -213,9 +214,17 @@ export const searchWithRRF = async (
 ) => {
   const bm25Ranking = await searchWithBM25(
     query.toLowerCase().split(" "),
-    emailChunks
+    emailChunks,
+    emailChunkToText
   );
-  const embeddingsRanking = await searchWithEmbeddings(query, emailChunks);
-  const rrfRanking = reciprocalRankFusion([bm25Ranking, embeddingsRanking]);
+  const embeddingsRanking = await searchWithEmbeddings(
+    query,
+    emailChunks,
+    emailChunkToText
+  );
+  const rrfRanking = reciprocalRankFusion(
+    [bm25Ranking, embeddingsRanking],
+    (item) => item.id
+  );
   return rrfRanking;
 };

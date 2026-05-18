@@ -1,6 +1,7 @@
 import { reranker } from "@/app/rerank";
 import {
   EmailChunk,
+  emailChunkToText,
   emailToChunks,
   loadEmails,
   reciprocalRankFusion,
@@ -58,20 +59,23 @@ export const searchTool = tool({
 
     // Use search algorithm from lesson 2.2
     const bm25Results = keywords
-      ? await searchWithBM25(keywords, emailChunks)
+      ? await searchWithBM25(keywords, emailChunks, emailChunkToText)
       : [];
     const embeddingResults = searchQuery
-      ? await searchWithEmbeddings(searchQuery, emailChunks)
+      ? await searchWithEmbeddings(searchQuery, emailChunks, emailChunkToText)
       : [];
-    const rrfResults = reciprocalRankFusion([
-      bm25Results.slice(0, 30), // Only take the top 30 results from each search
-      embeddingResults.slice(0, 30), // Only take the top 30 results from each search
-    ]);
+    const rrfResults = reciprocalRankFusion(
+      [
+        bm25Results.slice(0, 30), // Only take the top 30 results from each search
+        embeddingResults.slice(0, 30), // Only take the top 30 results from each search
+      ],
+      (item) => item.id
+    );
 
     // Sort the results by score
     const sortedResults = rrfResults.sort((a, b) => b.score - a.score);
     const topEmailChunks = sortedResults.slice(0, 30).map((result) => ({
-      ...result.emailChunk,
+      ...result.item,
       score: result.score,
     }));
     const scoreById = new Map(topEmailChunks.map((c) => [c.id, c.score]));
