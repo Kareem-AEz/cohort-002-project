@@ -66,6 +66,9 @@ export const Chat = (props: { chat: DB.Chat | null }) => {
         router.refresh();
       }
     },
+    onFinish: async () => {
+      router.refresh();
+    },
     generateId: () => crypto.randomUUID(),
   });
 

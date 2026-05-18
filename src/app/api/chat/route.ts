@@ -23,6 +23,8 @@ import { devToolsMiddleware } from "@ai-sdk/devtools";
 import { searchTool } from "./search-tool";
 import { filterTool } from "./filter-tool";
 import { getEmailsTool } from "./get-emails-tool";
+import { memoryToText, searchMemories } from "@/app/memory-search";
+import { extractAndUpdateMemories } from "./extract-memories";
 
 const myTools = {
   searchTool,
@@ -34,6 +36,8 @@ export type MyTools = InferUITools<typeof myTools>;
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
+
+const MEMORIES_TO_USE = 3;
 
 export type MyMessage = UIMessage<
   never,
@@ -79,6 +83,9 @@ export async function POST(req: Request) {
       status: 400,
     });
   }
+
+  const memories = await searchMemories({ messages });
+  const memoriesToUse = memories.slice(0, MEMORIES_TO_USE);
 
   const stream = createUIMessageStream<MyMessage>({
     execute: async ({ writer }) => {
@@ -134,10 +141,21 @@ export async function POST(req: Request) {
           `Answer only from emails you actually retrieved. Quote subject and sender when it helps the user verify. If a tool returns nothing relevant, say so plainly. Do not invent senders, subjects, or contents.`,
           ``,
           `Voice: write like a colleague over chat. Plain language, short sentences. Do not use em dashes; use a comma, period, or parentheses instead. Skip filler openers like "Great question" or "I'd be happy to", and skip closing pleasantries. Avoid hedging adverbs like "simply", "essentially", or "actually". Match length to the question; a short question gets a short answer. Use prose by default and only reach for bullets when the content is genuinely a list.`,
+          `You have access to the following memories:
+          <memories>
+          ${memories
+            .map((memory) => [
+              `<memory id="${memory.item.id}">`,
+              memoryToText(memory.item),
+              "</memory>",
+            ])
+            .join("\n")}          
+          </memories>`,
         ].join("\n"),
         messages: await convertToModelMessages(messages),
         tools: myTools,
         stopWhen: [stepCountIs(10)],
+        // src/app/api/chat/route.ts
       });
 
       writer.merge(
@@ -152,6 +170,11 @@ export async function POST(req: Request) {
     generateId: () => crypto.randomUUID(),
     onFinish: async ({ responseMessage }) => {
       await appendToChatMessages(chatId, [responseMessage]);
+      // ADDED: Extract and update memories from the conversation
+      await extractAndUpdateMemories({
+        messages: [...messages, responseMessage],
+        memories: memories.map((memory) => memory.item),
+      });
     },
   });
 

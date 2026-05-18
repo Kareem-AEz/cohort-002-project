@@ -30,7 +30,7 @@ export default async function SearchPage(props: {
   // src/app/search/page.tsx
 
   const transformedEmails = emailsWithScores
-    .map(({ emailChunk, score }) => ({
+    .map(({ item: emailChunk, score }) => ({
       id: emailChunk.id,
       from: emailChunk.from,
       subject: emailChunk.subject,
