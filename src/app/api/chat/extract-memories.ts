@@ -11,28 +11,25 @@ import {
   Output,
   wrapLanguageModel,
   gateway,
+  LanguageModel,
 } from "ai";
 import { z } from "zod";
 import { MyMessage } from "./route";
 import { memoryToText } from "@/app/memory-search";
 import { devToolsMiddleware } from "@ai-sdk/devtools";
 
-export async function extractAndUpdateMemories(opts: {
+export const extractMemories = async ({
+  messages,
+  memories,
+  model,
+}: {
   messages: MyMessage[];
   memories: DB.Memory[];
-}) {
-  // ADDED: Filter to only user and assistant messages to save costs
-  const filteredMessages = opts.messages.filter(
+  model: LanguageModel;
+}) => {
+  const filteredMessages = messages.filter(
     (message) => message.role === "user" || message.role === "assistant"
   );
-
-  // src/app/api/chat/extract-memories.ts
-
-  const model = wrapLanguageModel({
-    model: gateway("deepseek/deepseek-v4-flash"),
-    middleware:
-      process.env.NODE_ENV === "development" ? [devToolsMiddleware()] : [],
-  });
 
   const memoriesResult = await generateText({
     model,
@@ -68,7 +65,7 @@ export async function extractAndUpdateMemories(opts: {
     system: `You are a memory management agent that extracts and maintains permanent information about the user from conversations.
   
   <existing-memories>
-  ${opts.memories
+  ${memories
     .map(
       (memory) => `<memory id="${memory.id}">${memoryToText(memory)}</memory>`
     )
@@ -111,6 +108,32 @@ export async function extractAndUpdateMemories(opts: {
   // src/app/api/chat/extract-memories.ts
 
   const { updates, deletions, additions } = memoriesResult.output;
+
+  return { updates, deletions, additions };
+};
+
+export async function extractAndUpdateMemories(opts: {
+  messages: MyMessage[];
+  memories: DB.Memory[];
+}) {
+  // ADDED: Filter to only user and assistant messages to save costs
+  const filteredMessages = opts.messages.filter(
+    (message) => message.role === "user" || message.role === "assistant"
+  );
+
+  // src/app/api/chat/extract-memories.ts
+
+  const model = wrapLanguageModel({
+    model: gateway("deepseek/deepseek-v4-flash"),
+    middleware:
+      process.env.NODE_ENV === "development" ? [devToolsMiddleware()] : [],
+  });
+
+  const { updates, deletions, additions } = await extractMemories({
+    messages: filteredMessages,
+    memories: opts.memories,
+    model,
+  });
 
   // ADDED: Prevent conflicts between updates and deletions
   const filteredDeletions = deletions.filter(
