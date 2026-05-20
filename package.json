@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
+    "dev:eval": "evalite watch",
     "build": "next build --turbopack",
     "start": "next start",
     "cherry-pick": "ai-hero-cli cherry-pick --branch=live-run-through",
@@ -12,6 +13,7 @@
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.77",
+    "@ai-sdk/deepseek": "^2.0.35",
     "@ai-sdk/devtools": "^0.0.17",
     "@ai-sdk/google": "^3.0.73",
     "@ai-sdk/react": "^3.0.184",
