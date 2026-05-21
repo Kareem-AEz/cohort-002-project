@@ -1,0 +1,82 @@
+{
+  "writtenAt": "2026-05-21T15:51:45.225Z",
+  "question": "user: Where did Alex and I go in New Zealand, when, and how much was the guided tour total?",
+  "answer": "Here's everything I found from your emails about the New Zealand trip with Alex:\n\n### 📍 Where\nYou and **Alex Morgan** went on the **Ultimate South Island Explorer** — a guided 10-day tour of New Zealand's South Island, covering:\n- **Queenstown** (3 nights)\n- **Te Anau** (Milford Sound)\n- **Wanaka** (2 nights)\n- **Mount Cook National Park**\n- **Lake Tekapo** (Dark Sky Reserve)\n- **Castle Hill & Christchurch** (1 night)\n\n### 📅 When\n**15–24 December 2024** — right around your 35th birthday!\n\n### 💰 Guided Tour Total\nThe tour was **NZ$4,850 per person**, so **NZ$9,700 total for both of you**.\n\n(On top of that, your flights from Manchester to Auckland with Emirates were £1,287, and you had an independent stay at The Rees Hotel in Queenstown from 15–18 Sept 2024 for £420 — looks like you did some independent exploring before the guided tour kicked off in December.)\n\nSounds like an absolutely incredible trip! 🏔️📸",
+  "expected": "You went on Adventure South NZ's Ultimate South Island Explorer 10-day guided tour with Alex from 15-24 December 2024. The price was NZ$4,850 per person, NZ$9,700 total for the two of you.",
+  "toolCalls": [
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_aN54ugX7REeePugirfnj7976",
+      "toolName": "search",
+      "input": {
+        "keywords": [
+          "Alex",
+          "New Zealand",
+          "guided tour"
+        ],
+        "searchQuery": "Alex New Zealand trip guided tour total cost"
+      }
+    },
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_DANG3LFveGB58QGRUWY09159",
+      "toolName": "getEmails",
+      "input": {
+        "ids": [
+          "email_1759405480828_j256eojgb",
+          "email_1759405172111_4e1fvdyhr",
+          "email_1759405172111_xrbr8tsdd",
+          "email_1759405399910_vump64bh8",
+          "email_1759405450995_bhp9zzpqi",
+          "email_1759405450995_t4frnsqmh",
+          "email_1759405388321_xefcob7iz",
+          "email_1759405388321_33gsdf84s",
+          "email_1759405489599_cs91z2g5m"
+        ],
+        "includeThread": true
+      }
+    }
+  ],
+  "score": 0.8571428571428571,
+  "metadata": {
+    "facts": [
+      {
+        "fact": "The tour was operated by Adventure South NZ.",
+        "supported": false,
+        "reason": "Actual answer does not mention the tour operator, only the tour name."
+      },
+      {
+        "fact": "The tour was called the Ultimate South Island Explorer.",
+        "supported": true,
+        "reason": "Actual answer mentions the tour name as Ultimate South Island Explorer."
+      },
+      {
+        "fact": "The tour was a 10-day guided tour.",
+        "supported": true,
+        "reason": "Actual answer states it was a guided 10-day tour."
+      },
+      {
+        "fact": "The trip was taken with Alex.",
+        "supported": true,
+        "reason": "Actual answer states 'You and Alex Morgan went', which identifies Alex."
+      },
+      {
+        "fact": "The tour dates were from 15 December 2024 to 24 December 2024.",
+        "supported": true,
+        "reason": "Actual answer gives the same dates."
+      },
+      {
+        "fact": "The price per person was NZ$4,850.",
+        "supported": true,
+        "reason": "Actual answer matches the per person price."
+      },
+      {
+        "fact": "The total price for two people was NZ$9,700.",
+        "supported": true,
+        "reason": "Actual answer matches the total price."
+      }
+    ],
+    "supportedCount": 6,
+    "totalFacts": 7
+  }
+}

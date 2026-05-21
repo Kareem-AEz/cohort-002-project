@@ -1,0 +1,124 @@
+{
+  "writtenAt": "2026-05-21T15:52:43.555Z",
+  "question": "user: How many emails did I exchange with Katie about the NZ trip before we flew out in December 2024?",
+  "answer": "Here's what I found after a thorough search of your emails with Katie!\n\n**There are no emails about the NZ trip from before December 2024.** In fact, all of your NZ trip planning with Katie happened entirely in **2025** — so zero emails match the timeframe you mentioned.\n\nHere's the full picture of your NZ trip email exchange with Katie:\n\n**12 emails total exchanged across 4 threads (all in 2025):**\n\n1. **Thread: \"Long time no chat! New Zealand trip?\"** (June 4, 2025)\n   - Katie reaches out after seeing your Instagram posts about NZ → you reply that you and Alex are planning → Katie brain-dumps climbing/photography recs\n\n2. **Thread: \"NZ Trip Recommendations! 🏔️📸\"** (June 7-8, 2025)\n   - Katie sends an incredibly detailed itinerary → you ask follow-ups about camper vans and climbing groups → Katie suggests a video call\n\n3. **Thread: \"Auckland Hangout - Your NZ Trip! 🇳🇿\"** (Aug 15-16, 2025)\n   - Katie plans to meet up in Auckland → you say you'll be there Sept 15-20 → Katie suggests Sept 17 to hang\n\n4. **Thread: \"NZ trip - final tips & weather updates! 🇳🇿\"** (Sept 27-28, 2025)\n   - Katie sends weather and packing tips → you ask about footwear → she recommends approach shoes\n\nSo the trip discussion seems to have been about a **September 2025 trip** (not December 2024). Would you like me to help with anything else or re-check using a different date range?",
+  "expected": "You exchanged roughly a dozen emails with Katie (katie.z.nz@gmail.com) about the NZ trip in the months leading up to the December departure - covering reconnecting after a long gap, recommendations for South Island stops, detailed climbing-area suggestions, an Auckland hangout plan, and final tips and weather updates.",
+  "toolCalls": [
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_w5hn6ylvlHPRwECxf84Q8221",
+      "toolName": "search",
+      "input": {
+        "keywords": [
+          "Katie",
+          "NZ",
+          "New Zealand",
+          "trip"
+        ],
+        "searchQuery": "NZ trip New Zealand Katie"
+      }
+    },
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_iQTrs2bYAWKna1IIFLIm9369",
+      "toolName": "filterEmails",
+      "input": {
+        "from": "katie.z.nz",
+        "to": "sarah.chen",
+        "before": "2024-12-31T23:59:59Z",
+        "limit": 10
+      }
+    },
+    {
+      "type": "tool-call",
+      "toolCallId": "call_01_tcC7GVaaI7XAh0cTupBD4877",
+      "toolName": "filterEmails",
+      "input": {
+        "from": "sarah.chen",
+        "to": "katie.z.nz",
+        "before": "2024-12-31T23:59:59Z",
+        "limit": 10
+      }
+    },
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_xVHld0zHz8dAwVF3P7YM9819",
+      "toolName": "search",
+      "input": {
+        "keywords": [
+          "NZ",
+          "New Zealand",
+          "trip",
+          "Katie"
+        ],
+        "searchQuery": "New Zealand trip exchange with Katie 2024"
+      }
+    },
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_V9AMJnvacPP2LoV6brmF6116",
+      "toolName": "getEmails",
+      "input": {
+        "ids": [
+          "email_1759405189437_15lbenl6s",
+          "email_1759405505651_mhui8ewmg",
+          "email_1759405575204_q10u63kg6"
+        ],
+        "includeThread": true
+      }
+    },
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_dGqAzsCHBZyxytIWpjMe7484",
+      "toolName": "getEmails",
+      "input": {
+        "ids": [
+          "email_1759405298655_nu7q1tv7x"
+        ],
+        "includeThread": true
+      }
+    }
+  ],
+  "score": 0.7142857142857143,
+  "metadata": {
+    "facts": [
+      {
+        "fact": "You exchanged roughly a dozen emails with Katie about the NZ trip.",
+        "supported": true,
+        "reason": "The actual answer states 12 emails exchanged about the NZ trip."
+      },
+      {
+        "fact": "The email exchange occurred in the months leading up to the December departure.",
+        "supported": false,
+        "reason": "The actual answer states all emails were in 2025, not before December 2024."
+      },
+      {
+        "fact": "The emails covered reconnecting after a long gap.",
+        "supported": true,
+        "reason": "The actual answer mentions a thread where Katie reaches out after seeing Instagram posts, indicating reconnection."
+      },
+      {
+        "fact": "The emails covered recommendations for South Island stops.",
+        "supported": false,
+        "reason": "The actual answer does not mention South Island stops specifically."
+      },
+      {
+        "fact": "The emails covered detailed climbing-area suggestions.",
+        "supported": true,
+        "reason": "The actual answer includes climbing recs and climbing areas discussion."
+      },
+      {
+        "fact": "The emails covered an Auckland hangout plan.",
+        "supported": true,
+        "reason": "The actual answer has a thread about planning an Auckland hangout."
+      },
+      {
+        "fact": "The emails covered final tips and weather updates.",
+        "supported": true,
+        "reason": "The actual answer has a thread specifically for final tips and weather updates."
+      }
+    ],
+    "supportedCount": 5,
+    "totalFacts": 7
+  }
+}

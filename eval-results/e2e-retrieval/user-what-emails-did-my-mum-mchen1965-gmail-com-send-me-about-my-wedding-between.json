@@ -1,0 +1,64 @@
+{
+  "writtenAt": "2026-05-21T15:51:19.656Z",
+  "question": "user: What emails did my mum (mchen1965@gmail.com) send me about my wedding between October 2025 and February 2026?",
+  "answer": "Your mum sent you **two emails about the wedding** between October 2025 and February 2026. Here's a summary of the full threads:\n\n---\n\n### 📧 Email 1: \"Wedding plans - how can I help?\"\n**October 21, 2025** – Mum offered to help with wedding planning, contributing financially, and asked about venues.\n\n- You replied saying you'd found **The Garden Room** — an intimate venue for ~40-50 people — and asked for catering recommendations.\n- She came back the next day suggesting a caterer your aunt Linda used and again offered to help with costs.\n\n---\n\n### 📧 Email 2: \"Travel for your wedding - some questions\"\n**February 14, 2026** – Mum asked about travel logistics from London to Manchester for the wedding weekend.\n\n- You replied that the ceremony is on a **Saturday**, and you'd love them to come up on the **Friday** (2 days before) for a casual welcome dinner.\n- You offered to book a hotel room for them.\n- She replied that evening saying she'd book her own room and asked for hotel recommendations, also offering to help with the welcome dinner.\n\n---\n\nIt sounds like your wedding planning was coming along nicely! Your mum was being very supportive — offering financial help, recommending caterers, and sorting out travel details. 💕",
+  "expected": "Two threads from your mum in that window: one in October 2025 ('Wedding plans - how can I help?') asking how she could help with planning, and one in mid-February 2026 ('Travel for your wedding - some questions') asking about travel arrangements.",
+  "toolCalls": [
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_vFREByhUmvcK7vFuNcIc4510",
+      "toolName": "filterEmails",
+      "input": {
+        "from": "mchen1965@gmail.com",
+        "contains": "wedding",
+        "before": "2026-02-28T23:59:59Z",
+        "after": "2025-10-01T00:00:00Z",
+        "limit": 10
+      }
+    },
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_S2H3BJYKarDbk7BWzV5W2970",
+      "toolName": "getEmails",
+      "input": {
+        "ids": [
+          "email_1759405640633_jjj4h4l5x",
+          "email_1759405904211_1o71ltgci"
+        ],
+        "includeThread": true
+      }
+    }
+  ],
+  "score": 1,
+  "metadata": {
+    "facts": [
+      {
+        "fact": "Your mum sent you two threads about the wedding within the window October 2025 to February 2026.",
+        "supported": true,
+        "reason": "Actual answer states she sent two emails about wedding between October 2025 and February 2026."
+      },
+      {
+        "fact": "One thread was in October 2025 with subject 'Wedding plans - how can I help?'.",
+        "supported": true,
+        "reason": "Actual answer mentions email with subject 'Wedding plans - how can I help?' on October 21, 2025."
+      },
+      {
+        "fact": "The October 2025 thread asked how she could help with planning.",
+        "supported": true,
+        "reason": "Actual answer says Mum offered to help with wedding planning."
+      },
+      {
+        "fact": "The other thread was in mid-February 2026 with subject 'Travel for your wedding - some questions'.",
+        "supported": true,
+        "reason": "Actual answer includes email with subject 'Travel for your wedding - some questions' on February 14, 2026."
+      },
+      {
+        "fact": "The February 2026 thread asked about travel arrangements.",
+        "supported": true,
+        "reason": "Actual answer states Mum asked about travel logistics."
+      }
+    ],
+    "supportedCount": 5,
+    "totalFacts": 5
+  }
+}

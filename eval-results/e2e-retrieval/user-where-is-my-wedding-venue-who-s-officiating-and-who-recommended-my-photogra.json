@@ -1,0 +1,97 @@
+{
+  "writtenAt": "2026-05-21T15:51:41.169Z",
+  "question": "user: Where is my wedding venue, who's officiating, and who recommended my photographer?",
+  "answer": "Here's everything I found from your emails:\n\n---\n\n### 🏛️ **Wedding Venue: The Garden Room**\nYou've booked **The Garden Room** (in Manchester) for **Saturday, 16th September 2025**. It's a gorgeous indoor/outdoor garden venue with a wildflower meadow ceremony area, covered pergola, and a reception hall — exactly the relaxed, intimate vibe you wanted. Your venue coordinator is **Emma Richardson**.\n\n### 🕯️ **Officiant: Natasha Cole (Independent Celebrant)**\n**Natasha Cole** from **celebratewithnat.com** is officiating your ceremony. She was connected to you through a mutual friend, and you've already had initial consultations with her. You've discussed blending your cultural backgrounds and incorporating the story of how you and Alex met (bonding over terrible conference coffee! ☕😄).\n\n### 📸 **Who Recommended Your Photographer: Martin Hughes**\n**Martin Hughes** (a fellow photographer from the Manchester Photography Society) emailed you with recommendations. After you said you wanted something natural and documentary-style, he specifically recommended his colleague **Emma Rodriguez**, who specializes in small, intimate weddings. He was going to send an intro email connecting you both!\n\n---\n\nWould you like me to look into anything else regarding your wedding plans?",
+  "expected": "Your wedding is at The Garden Room in Manchester, officiated by Natasha from Celebrate With Nat, and Martin Hughes recommended your photographer.",
+  "toolCalls": [
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_6GqN4uNYVJ85GMOzqFPS2494",
+      "toolName": "search",
+      "input": {
+        "keywords": [
+          "wedding",
+          "venue",
+          "officiant",
+          "photographer",
+          "recommend"
+        ],
+        "searchQuery": "Sarah's wedding venue, officiant, and photographer recommendation"
+      }
+    },
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_KWEct0F27vVxvhQ7L0bW8508",
+      "toolName": "getEmails",
+      "input": {
+        "ids": [
+          "email_1759405683742_83fsy2z8s",
+          "email_1759405800732_v5s213ag1",
+          "email_1759405800732_tg4to3gso",
+          "email_1759405640633_5jhsy315w"
+        ],
+        "includeThread": true
+      }
+    },
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_L5k7O2t4O9yXOW5QuUgr6950",
+      "toolName": "search",
+      "input": {
+        "keywords": [
+          "officiant",
+          "celebrant",
+          "marry",
+          "ceremony",
+          "minister"
+        ],
+        "searchQuery": "wedding officiant or celebrant for Sarah's wedding"
+      }
+    },
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_zEWHeNFWqpiaZk7aWB2n5742",
+      "toolName": "getEmails",
+      "input": {
+        "ids": [
+          "email_1759405694987_q4ozfhq7q",
+          "email_1759405710920_9bhd2pb1l",
+          "email_1759405710920_pxonxahkc"
+        ],
+        "includeThread": true
+      }
+    }
+  ],
+  "score": 1,
+  "metadata": {
+    "facts": [
+      {
+        "fact": "Your wedding is at The Garden Room.",
+        "supported": true,
+        "reason": "The actual answer states: 'You've booked The Garden Room'."
+      },
+      {
+        "fact": "The Garden Room is in Manchester.",
+        "supported": true,
+        "reason": "The actual answer includes '(in Manchester)' when mentioning the venue."
+      },
+      {
+        "fact": "The wedding is officiated by Natasha.",
+        "supported": true,
+        "reason": "The actual answer says 'Natasha Cole from celebratewithnat.com is officiating your ceremony.' This identifies Natasha, matching the reference."
+      },
+      {
+        "fact": "Natasha is from Celebrate With Nat.",
+        "supported": true,
+        "reason": "The actual answer specifies Natasha Cole is from celebratewithnat.com, which matches 'Celebrate With Nat'."
+      },
+      {
+        "fact": "Martin Hughes recommended your photographer.",
+        "supported": true,
+        "reason": "The actual answer says Martin Hughes recommended his colleague Emma Rodriguez as your photographer."
+      }
+    ],
+    "supportedCount": 5,
+    "totalFacts": 5
+  }
+}

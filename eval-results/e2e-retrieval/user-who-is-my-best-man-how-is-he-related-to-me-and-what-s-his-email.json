@@ -1,0 +1,56 @@
+{
+  "writtenAt": "2026-05-21T15:51:10.987Z",
+  "question": "user: Who is my best man, how is he related to me, and what's his email?",
+  "answer": "Here's what I found:\n\n**Your best man is James** (James Chen, I'd assume based on the last name and emails), **and he's your brother** — you refer to him as \"little bro\" and he calls you \"sis\" in the emails! 🥰\n\n**Email:** jamesc.edinburgh@gmail.com\n\nFrom the conversation, it looks like he reached out to you in January 2026 about best man duties, excited but \"slightly terrified\" about the speech. You two were planning a video call and coordinating Alex's stag do (a climbing + gaming night combo). Sounds like he's taking the role seriously — he even mentioned having a spreadsheet started! 😄",
+  "expected": "Your best man is your brother James, who emails from jamesc.edinburgh@gmail.com.",
+  "toolCalls": [
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_wpUbTReU98lQ64IpH9GF7184",
+      "toolName": "search",
+      "input": {
+        "keywords": [
+          "best man",
+          "wedding",
+          "groomsman"
+        ],
+        "searchQuery": "best man wedding"
+      }
+    },
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_vIxBXdXJDOCUGoxQRgZm2634",
+      "toolName": "getEmails",
+      "input": {
+        "ids": [
+          "email_1759405860086_n2sqxmjkg",
+          "email_1759405860086_s0n575yru",
+          "email_1759405860086_3rx9mgovh"
+        ],
+        "includeThread": true
+      }
+    }
+  ],
+  "score": 1,
+  "metadata": {
+    "facts": [
+      {
+        "fact": "Your best man is James.",
+        "supported": true,
+        "reason": "The actual answer states 'Your best man is James'."
+      },
+      {
+        "fact": "James is your brother.",
+        "supported": true,
+        "reason": "The actual answer says 'he's your brother'."
+      },
+      {
+        "fact": "James's email is jamesc.edinburgh@gmail.com.",
+        "supported": true,
+        "reason": "The actual answer includes the exact email address."
+      }
+    ],
+    "supportedCount": 3,
+    "totalFacts": 3
+  }
+}

@@ -1,0 +1,186 @@
+{
+  "writtenAt": "2026-05-21T15:52:04.666Z",
+  "question": "user: When did I register as a sole trader, and which client's invoicing change prompted that conversation?",
+  "answer": "Here's what I found from your emails:\n\n**You officially registered as a sole trader on March 9, 2025.** The confirmation from HMRC (no-reply@gov.uk) was sent at 10:07 AM that day, and you excitedly shared the news with your partner Alex that afternoon — calling it \"a big step\" and celebrating with plans for Thai dinner! 🎉\n\n**The client whose invoicing change prompted that conversation was Wavelength Digital (via Marcus Webb) for their Design System Audit project.** Here's the timeline:\n\n1. **Feb 1, 2025** — You were already talking to Rachel Morrison about pricing advice, specifically mentioning *\"the design system audit I'm doing for Marcus at Wavelength\"* and asking how to structure your fees for it.\n\n2. **Feb 24, 2025** — Rachel followed up about business structure advice (sole trader vs limited company) after a design meetup where you mentioned you were exploring formalizing your consulting work. She recommended starting as a sole trader.\n\n3. **Mar 9, 2025** — You registered as a sole trader and received official confirmation.\n\n4. **Mar 11, 2025** — Marcus reached out saying *\"I wanted to touch base about our invoicing for the design system audit. I noticed you mentioned you're updating your consulting process\"* — and you replied with your new structured invoicing process (QuickBooks, itemized breakdowns, Net 15 terms, including your new sole trader registration number).\n\nSo the **Wavelength Digital design system audit** with Marcus Webb was the client project that triggered the conversation about formalizing your business and ultimately registering as a sole trader.",
+  "expected": "You registered as a sole trader on 9 March 2025 as 'Sarah Chen Consulting'. Marcus Webb at Wavelength Digital introduced an updated invoicing process for the design system project, which pushed the business-structure conversation forward.",
+  "toolCalls": [
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_xAYl6bFbCmMZP7XqNCU73400",
+      "toolName": "search",
+      "input": {
+        "keywords": [
+          "sole trader",
+          "registration",
+          "invoicing",
+          "client"
+        ],
+        "searchQuery": "register as a sole trader invoicing change client conversation"
+      }
+    },
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_eKN6nsrdCzoUgpPSKqWa7994",
+      "toolName": "getEmails",
+      "input": {
+        "ids": [
+          "email_1759404985464_ns1v2a7gm",
+          "email_1759404985464_0axmbpfi8",
+          "email_1759404999931_216duvdcc",
+          "email_1759404999931_vgv01j89d"
+        ],
+        "includeThread": true
+      }
+    },
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_WpuLa2ESFuetiG99WYND3991",
+      "toolName": "getEmails",
+      "input": {
+        "ids": [
+          "email_1759404929639_slxyp3vl6",
+          "email_1759404929639_zwvqdbk70"
+        ],
+        "includeThread": true
+      }
+    },
+    {
+      "type": "tool-call",
+      "toolCallId": "call_01_YUi7Hq3pi5nhwBuhJOfs0236",
+      "toolName": "getEmails",
+      "input": {
+        "ids": [
+          "email_1759404220677_934esfput"
+        ],
+        "includeThread": true
+      }
+    },
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_BFhJlmmL8xjHP6284WDE3697",
+      "toolName": "search",
+      "input": {
+        "keywords": [
+          "invoicing",
+          "sole trader",
+          "client",
+          "Wavelength Digital",
+          "Marcus"
+        ],
+        "searchQuery": "conversation about invoicing change that led to sole trader registration"
+      }
+    },
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_RLDf3e2O0VMKtmJBJApU8494",
+      "toolName": "search",
+      "input": {
+        "keywords": [
+          "Wavelength Digital",
+          "Marcus Webb",
+          "design system",
+          "invoicing"
+        ],
+        "searchQuery": "what client invoicing change prompted Sarah to register as a sole trader"
+      }
+    },
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_mNVVzpGQUPslhlziTPwh7766",
+      "toolName": "search",
+      "input": {
+        "keywords": [
+          "invoicing",
+          "client",
+          "formal",
+          "tax",
+          "invoice",
+          "sole trader"
+        ],
+        "searchQuery": "client requested formal invoicing or tax details prompting sole trader decision"
+      }
+    },
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_NMZK2TwnF4s9VMUiWc5o7096",
+      "toolName": "getEmails",
+      "input": {
+        "ids": [
+          "email_1759404943539_z25b86wpn",
+          "email_1759404943539_q63mbcg6z"
+        ],
+        "includeThread": true
+      }
+    },
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_d9abYbvaxl4Il46wJsPz6357",
+      "toolName": "search",
+      "input": {
+        "keywords": [
+          "client",
+          "request",
+          "formal",
+          "invoice",
+          "receipt",
+          "tax number",
+          "UTR",
+          "VAT"
+        ],
+        "searchQuery": "client requested formal documentation or tax details that prompted Sarah to register as sole trader"
+      }
+    },
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_ZJwq32FTnFzRMe91CKfb1192",
+      "toolName": "search",
+      "input": {
+        "keywords": [
+          "design system audit",
+          "design system",
+          "consulting"
+        ],
+        "searchQuery": "Sarah's design consulting client projects invoicing"
+      }
+    },
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_fU5zMqZXSPOWuSX5Zcn20744",
+      "toolName": "getEmails",
+      "input": {
+        "ids": [
+          "email_1759404887263_kt85ubd9l",
+          "email_1759404887263_a53vdwz3q"
+        ],
+        "includeThread": true
+      }
+    }
+  ],
+  "score": 0.25,
+  "metadata": {
+    "facts": [
+      {
+        "fact": "You registered as a sole trader on 9 March 2025.",
+        "supported": true,
+        "reason": "The actual answer explicitly states: 'You officially registered as a sole trader on March 9, 2025.'"
+      },
+      {
+        "fact": "You registered as 'Sarah Chen Consulting'.",
+        "supported": false,
+        "reason": "The actual answer mentions the sole trader registration number but does not mention the name 'Sarah Chen Consulting'."
+      },
+      {
+        "fact": "Marcus Webb at Wavelength Digital introduced an updated invoicing process for the design system project.",
+        "supported": false,
+        "reason": "The actual answer states that Marcus Webb reached out about invoicing, but it describes you replying with your new invoicing process, not Marcus introducing an updated process."
+      },
+      {
+        "fact": "The updated invoicing process pushed the business-structure conversation forward.",
+        "supported": false,
+        "reason": "The actual answer discusses business structure advice prior to registration, but the invoicing change is shown as occurring after registration and does not clearly claim it pushed the business-structure conversation forward as described in the reference."
+      }
+    ],
+    "supportedCount": 1,
+    "totalFacts": 4
+  }
+}

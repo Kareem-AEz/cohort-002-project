@@ -1,0 +1,79 @@
+{
+  "writtenAt": "2026-05-21T15:51:31.577Z",
+  "question": "user: Who introduced me to Tom Hartley, and what did that lead to?",
+  "answer": "Here's the full story!\n\n## Who introduced you?\n**Priya Sharma** (p.sharma@greenpath.io) introduced you to **Tom Richardson** from **Hartley & Co** on **January 2nd, 2025**. In her intro email, she called you \"an absolute rockstar in design systems and UX strategy\" after having worked with you on a workshop. (And just to note — his name is Tom Richardson, though you may have been thinking of him as \"Tom from Hartley & Co\"!)\n\n## What did it lead to?\nQuite a substantial piece of work! It led to a **£18,750 design systems consulting engagement** with Hartley & Co. Here's the timeline:\n\n1. **Jan 2** — Priya made the introduction\n2. **Jan 3** — You connected and scheduled an initial call\n3. **Mar 29** — Tom sent over a detailed proposal, and you responded with your own scope and rate (£1,250/day)\n4. **Apr 5** — **Tom officially accepted** your proposal for a **3-week project** to do:\n   - A comprehensive UX/UI redesign of their customer-facing portal\n   - A full design systems audit\n   - Component library restructuring\n   - Accessibility compliance roadmap (WCAG 2.1 AA)\n   - High-fidelity prototypes and developer handoff documentation\n\nThe kick-off was scheduled for **Thursday at 2pm** that same week, with Tom, their Lead Product Designer (Emma Chen), and Engineering Lead (Raj Patel) in attendance. The 50% deposit of **£9,375** was being processed! 🎉\n\nSo in short — Priya's introduction turned into a significant, well-paying consulting project that your contacts at Wavelength Digital and GreenPath helped vouch for!",
+  "expected": "Priya Sharma (p.sharma@greenpath.io) introduced you to Tom Hartley at Hartley & Co. It led to a design consultation engagement that you accepted in April 2025.",
+  "toolCalls": [
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_oYNSge9bfs7nQAERnfNE4629",
+      "toolName": "search",
+      "input": {
+        "keywords": [
+          "Tom Hartley",
+          "introduction",
+          "meet"
+        ],
+        "searchQuery": "introduced to Tom Hartley"
+      }
+    },
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_N7GEEQwmUv4PE79tx9Lg5970",
+      "toolName": "getEmails",
+      "input": {
+        "ids": [
+          "email_1759404842722_91zd3ti2s",
+          "email_1759404842722_eop0afv1x",
+          "email_1759404842722_1oytgawup"
+        ],
+        "includeThread": true
+      }
+    },
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_MPhSa2MYwk2w7dghi3au8951",
+      "toolName": "getEmails",
+      "input": {
+        "ids": [
+          "email_1759405013892_g3ltthlgq",
+          "email_1759405025055_z2s43uad1",
+          "email_1759405025055_7ct3ba6c2"
+        ],
+        "includeThread": true
+      }
+    }
+  ],
+  "score": 0.6,
+  "metadata": {
+    "facts": [
+      {
+        "fact": "Priya Sharma introduced you to Tom Hartley.",
+        "supported": false,
+        "reason": "Actual answer says introduced to Tom Richardson, not Tom Hartley."
+      },
+      {
+        "fact": "Priya Sharma's email is p.sharma@greenpath.io.",
+        "supported": true,
+        "reason": "Actual answer includes the same email address: p.sharma@greenpath.io."
+      },
+      {
+        "fact": "Tom Hartley is at Hartley & Co.",
+        "supported": false,
+        "reason": "Actual answer states Tom Richardson, not Tom Hartley, is at Hartley & Co."
+      },
+      {
+        "fact": "This introduction led to a design consultation engagement.",
+        "supported": true,
+        "reason": "Actual answer describes a design systems consulting engagement, which matches a design consultation engagement."
+      },
+      {
+        "fact": "You accepted the engagement in April 2025.",
+        "supported": true,
+        "reason": "Actual answer states the proposal was accepted on April 5, 2025."
+      }
+    ],
+    "supportedCount": 3,
+    "totalFacts": 5
+  }
+}

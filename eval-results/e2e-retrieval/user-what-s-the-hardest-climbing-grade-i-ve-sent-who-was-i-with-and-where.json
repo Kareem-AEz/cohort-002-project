@@ -1,0 +1,79 @@
+{
+  "writtenAt": "2026-05-21T15:51:21.027Z",
+  "question": "user: What's the hardest climbing grade I've sent, who was I with, and where?",
+  "answer": "I've pieced it all together from your emails! Here's the full story:\n\n---\n\n**🧗‍♀️ Hardest grade sent: 5.11b** (the route *\"Gin Palace\"* at Stanage Edge)\n\n**📍 Where:** **Stanage Edge**, Peak District, UK\n\n**👤 Who you were with:** **Hannah Price** — your climbing partner, who was your cheerleader and spotter throughout the send!\n\n---\n\nFrom the emails, this was a **clean send** (no falls) on a route you described as feeling \"impossible\" just two months prior. The crux involved a sequence of small crimps on a nearly vertical face with a long reach from a two-finger pocket to a sloping sidepull. Sounds like a massive milestone! 🎉\n\nAlso spotted in the emails — you've got a NZ climbing trip on the horizon too! How exciting. Want me to dig into anything else?",
+  "expected": "You sent a 5.11b clean, with Hannah Price, in the Peak District.",
+  "toolCalls": [
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_1vtMalEP1iU5idR04Oox0343",
+      "toolName": "search",
+      "input": {
+        "searchQuery": "climbing grade sent hardest climb"
+      }
+    },
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_13jgnKPDaToCirC5HuNl5246",
+      "toolName": "getEmails",
+      "input": {
+        "ids": [
+          "email_1759406279628_t1h38twqo",
+          "email_1759406279628_8qi27k4fu"
+        ],
+        "includeThread": true
+      }
+    },
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_f9rtocqBekgNKWvxGqOx6739",
+      "toolName": "getEmails",
+      "input": {
+        "ids": [
+          "email_1759406295469_z3us51bfo",
+          "email_1759406295469_4ldrfxupw"
+        ],
+        "includeThread": true
+      }
+    },
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_jCzY4C5Ut12mCfFnHm2V8976",
+      "toolName": "getEmails",
+      "input": {
+        "ids": [
+          "email_1759406328576_jlsjngh1j",
+          "email_1759406328576_rbk471xil"
+        ],
+        "includeThread": true
+      }
+    }
+  ],
+  "score": 1,
+  "metadata": {
+    "facts": [
+      {
+        "fact": "The hardest climbing grade sent is 5.11b.",
+        "supported": true,
+        "reason": "The actual answer explicitly states 'Hardest grade sent: 5.11b'."
+      },
+      {
+        "fact": "The send was clean (no falls).",
+        "supported": true,
+        "reason": "The actual answer mentions 'this was a clean send (no falls)'."
+      },
+      {
+        "fact": "The send was with Hannah Price.",
+        "supported": true,
+        "reason": "The actual answer identifies 'Hannah Price' as the climbing partner."
+      },
+      {
+        "fact": "The send was in the Peak District.",
+        "supported": true,
+        "reason": "The actual answer states 'Peak District, UK'."
+      }
+    ],
+    "supportedCount": 4,
+    "totalFacts": 4
+  }
+}

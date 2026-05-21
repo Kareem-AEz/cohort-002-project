@@ -1,0 +1,90 @@
+{
+  "writtenAt": "2026-05-21T15:52:34.345Z",
+  "question": "user: What were the last 3 emails I received from David Xu, my mortgage advisor?",
+  "answer": "Here are the last 3 emails you received from **David Xu** (david.xu@firsthomemortgages.co.uk), your mortgage advisor at First Home Mortgages:\n\n---\n\n### 1️⃣ **Your Mortgage Pre-Approval - Great News!**\n**📅 June 10, 2024 — 10:43 AM**\n\nDavid confirmed your mortgage pre-approval was successful! Key details:\n- **Maximum loan:** £350,000\n- **Initial rate:** 4.2% fixed for 2 years\n- **Deposit required:** ~£87,500 (25%)\n- Valid for 3 months, subject to property valuation.\n\n---\n\n### 2️⃣ **Re: Mortgage Application - Required Documentation**\n**📅 June 6, 2024 — 10:03 PM**\n\nA reply answering your question about freelance invoices. He clarified they need:\n- Copies of actual invoices\n- Bank statements showing those payments were deposited\n- Ideally 3–6 months of consistent income evidence\n- PDFs preferred, but clear phone scans work too\n\n---\n\n### 3️⃣ **Mortgage Application - Required Documentation**\n**📅 June 6, 2024 — 10:44 AM**\n\nA detailed email with the full document checklist needed to process your application, including:\n- Employment docs (payslips, P60, employment letter from TechFlow Solutions)\n- Freelance income evidence (invoices, bank statements)\n- 6 months of personal bank statements & savings proof\n- Photo ID and proof of address\n- Your unique reference code: **FHM-2024-SC-8473**\n\nWould you like me to pull up the full thread of any of these for more context?",
+  "expected": "The three most recent emails from David Xu (david.xu@firsthomemortgages.co.uk) covered the required documentation checklist for the mortgage application, and the pre-approval confirmation for £350,000. They are the latest three in the thread of five total emails from him in 2024.",
+  "toolCalls": [
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_UykqvRRNlhU3V108g27b2113",
+      "toolName": "filterEmails",
+      "input": {
+        "from": "David Xu",
+        "to": "sarah",
+        "limit": 10
+      }
+    },
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_tr1QAo5FGJ69Zdc6feBn6310",
+      "toolName": "search",
+      "input": {
+        "keywords": [
+          "David Xu",
+          "mortgage advisor"
+        ],
+        "searchQuery": "Emails from or about David Xu, my mortgage advisor"
+      }
+    },
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_QP4PpilogB2747o5tsdu9694",
+      "toolName": "getEmails",
+      "input": {
+        "ids": [
+          "email_1759404231272_8kx9u19f1",
+          "email_1759404220677_56zvr4se9",
+          "email_1759404220677_v1or126ln"
+        ],
+        "includeThread": false
+      }
+    }
+  ],
+  "score": 0.75,
+  "metadata": {
+    "facts": [
+      {
+        "fact": "The emails are from David Xu.",
+        "supported": true,
+        "reason": "Actual answer states the emails are from David Xu."
+      },
+      {
+        "fact": "David Xu's email address is david.xu@firsthomemortgages.co.uk.",
+        "supported": true,
+        "reason": "Actual answer provides the email address exactly."
+      },
+      {
+        "fact": "They are the latest three emails from him.",
+        "supported": true,
+        "reason": "Actual answer says 'Here are the last 3 emails you received from David Xu'."
+      },
+      {
+        "fact": "They cover the required documentation checklist for the mortgage application.",
+        "supported": true,
+        "reason": "Actual answer includes two emails detailing required documentation, including the checklist."
+      },
+      {
+        "fact": "They cover the pre-approval confirmation for £350,000.",
+        "supported": true,
+        "reason": "Actual answer includes an email about mortgage pre-approval with maximum loan £350,000."
+      },
+      {
+        "fact": "They are part of a thread.",
+        "supported": false,
+        "reason": "Actual answer does not mention that these emails are from a thread."
+      },
+      {
+        "fact": "There are five total emails from David Xu in 2024.",
+        "supported": false,
+        "reason": "Actual answer does not specify the total number of emails."
+      },
+      {
+        "fact": "The emails are from 2024.",
+        "supported": true,
+        "reason": "All three emails have dates in 2024."
+      }
+    ],
+    "supportedCount": 6,
+    "totalFacts": 8
+  }
+}

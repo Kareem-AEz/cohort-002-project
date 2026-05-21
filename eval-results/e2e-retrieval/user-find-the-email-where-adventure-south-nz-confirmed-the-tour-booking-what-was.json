@@ -1,0 +1,54 @@
+{
+  "writtenAt": "2026-05-21T15:51:17.582Z",
+  "question": "user: Find the email where Adventure South NZ confirmed the tour booking - what was the reference code?",
+  "answer": "Found it! The **Adventure South NZ** tour booking confirmation email has the following reference code:\n\n**Reference Code: NZ2024-SC01**\n\nHere are the key details from that booking:\n\n- **Tour**: Ultimate South Island Explorer (10 Days)\n- **Dates**: 15–24 December 2024\n- **Travellers**: Sarah Chen & Alex Morgan\n- **Total Price**: NZ$9,700 (NZ$4,850 per person)\n- **Deposit Paid**: NZ$2,000 ✓\n- **Balance Due**: NZ$7,700 (by 1 December 2024)\n\nIt's a comprehensive trip covering Queenstown, Milford Sound, Wanaka, Mount Cook, Tekapo, and Christchurch! 🏔️",
+  "expected": "The booking confirmation from bookings@adventuresouthnz.com gave booking reference NZ2024-SC01 for the Ultimate South Island Explorer 10-day tour.",
+  "toolCalls": [
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_C3c5mrdUvPvwRJolEfV04855",
+      "toolName": "search",
+      "input": {
+        "keywords": [
+          "Adventure South NZ",
+          "tour booking",
+          "confirmation"
+        ],
+        "searchQuery": "Adventure South NZ confirmed tour booking reference code"
+      }
+    },
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_HtKLtD7HhoEbpdCkBf6z4281",
+      "toolName": "getEmails",
+      "input": {
+        "ids": [
+          "email_1759405480828_j256eojgb"
+        ],
+        "includeThread": false
+      }
+    }
+  ],
+  "score": 0.6666666666666666,
+  "metadata": {
+    "facts": [
+      {
+        "fact": "The booking confirmation was from bookings@adventuresouthnz.com.",
+        "supported": false,
+        "reason": "The actual answer does not mention the email address bookings@adventuresouthnz.com; it only states 'Adventure South NZ tour booking confirmation email'."
+      },
+      {
+        "fact": "The booking reference is NZ2024-SC01.",
+        "supported": true,
+        "reason": "The actual answer explicitly states 'Reference Code: NZ2024-SC01'."
+      },
+      {
+        "fact": "The tour is the Ultimate South Island Explorer 10-day tour.",
+        "supported": true,
+        "reason": "The actual answer lists 'Tour: Ultimate South Island Explorer (10 Days)'."
+      }
+    ],
+    "supportedCount": 2,
+    "totalFacts": 3
+  }
+}

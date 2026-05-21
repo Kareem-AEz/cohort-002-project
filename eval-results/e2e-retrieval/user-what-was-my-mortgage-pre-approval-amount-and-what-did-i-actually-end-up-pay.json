@@ -1,0 +1,167 @@
+{
+  "writtenAt": "2026-05-21T15:52:07.232Z",
+  "question": "user: What was my mortgage pre-approval amount, and what did I actually end up paying for the house?",
+  "answer": "Great news - I found all the details in your emails! Here's what I uncovered:\n\n---\n\n## 🏡 Mortgage Pre-Approval: **£350,000**\n\nYour mortgage advisor **David Xu** at First Home Mortgages confirmed your pre-approval on **10 June 2024** for **£350,000** at an initial rate of **4.2% fixed for 2 years**, with a recommended 25% deposit of approximately £87,500. He factored in both your full-time role at TechFlow Solutions and your consulting income.\n\n---\n\n## 🏠 House Purchase Price: **£437,500**\n\nYou ended up buying **42 Victoria Grove, Chorlton, Manchester** — a Victorian terrace. The formal exchange of contracts went through on **18 October 2024**, with completion on **1 November 2024**.\n\nHere's how the finances broke down:\n\n| Item | Amount |\n|---|---|\n| **Total purchase price** | **£437,500** |\n| Deposit paid on exchange (10%) | £43,750 |\n| Mortgage loan | £350,000 |\n| Your additional cash | £43,750 |\n| **Total to complete** | **£393,750** (mortgage + your funds) |\n\nYou also mentioned to your friends that you managed to negotiate **£3k off** due to a minor damp issue found in the basement during the survey. 🎉\n\n*(Plus legal costs of £9,200 and Stamp Duty of £6,250 on top of the purchase price.)*",
+  "expected": "You were pre-approved for a £350,000 mortgage by David Xu at First Home Mortgages, and you ended up purchasing 42 Victoria Grove for £437,500.",
+  "toolCalls": [
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_yfqB6U86QeqXd7OQksLh0686",
+      "toolName": "search",
+      "input": {
+        "keywords": [
+          "mortgage",
+          "pre-approval",
+          "house",
+          "home",
+          "offer",
+          "purchase"
+        ],
+        "searchQuery": "mortgage pre-approval amount house purchase price paid"
+      }
+    },
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_BNSHhPSPgReN6q2Jl85J5669",
+      "toolName": "getEmails",
+      "input": {
+        "ids": [
+          "email_1759404231272_8kx9u19f1",
+          "email_1759404651718_e3ap4il9y",
+          "email_1759404253279_l8h0rn6ov"
+        ],
+        "includeThread": true
+      }
+    },
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_eFMR4JLkHqzlZlaViH7A3451",
+      "toolName": "search",
+      "input": {
+        "keywords": [
+          "42 Victoria Grove",
+          "Chorlton",
+          "completion",
+          "purchase price",
+          "£"
+        ],
+        "searchQuery": "house purchase completion Chorlton 42 Victoria Grove final price"
+      }
+    },
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_b2GrpVGkz1ENv4nPTKsH9736",
+      "toolName": "getEmails",
+      "input": {
+        "ids": [
+          "email_1759404521668_ypj9uvbwu",
+          "email_1759404510118_ciengfg6x",
+          "email_1759404510118_kivsezwzx",
+          "email_1759404510118_adpjncmh2"
+        ],
+        "includeThread": true
+      }
+    },
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_pFjiniZl2c3h1rmbLxQO9371",
+      "toolName": "search",
+      "input": {
+        "keywords": [
+          "Victoria Grove",
+          "437500",
+          "house price",
+          "purchase"
+        ],
+        "searchQuery": "final purchase price for the house at Victoria Grove Chorlton"
+      }
+    },
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_lzqLqL1GR4PnrmN7WkBs6584",
+      "toolName": "search",
+      "input": {
+        "keywords": [
+          "437500",
+          "Victoria Grove",
+          "Maple Grove",
+          "Chorlton"
+        ],
+        "searchQuery": "42 Victoria Grove Chorlton purchase price 437500"
+      }
+    },
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_L1iRxhaUVHhn07HB5WPI1540",
+      "toolName": "search",
+      "input": {
+        "keywords": [
+          "completed",
+          "keys",
+          "moved in",
+          "Victoria Grove",
+          "Chorlton"
+        ],
+        "searchQuery": "house purchase completed moved into new home Chorlton"
+      }
+    },
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_R0xVLeLP9ibuK66kna3N6097",
+      "toolName": "getEmails",
+      "input": {
+        "ids": [
+          "email_1759404732520_20lv9jsvb",
+          "email_1759405356237_g11lxjh9a"
+        ],
+        "includeThread": true
+      }
+    },
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_GSLnGuEDkBPxI4UakkaY8666",
+      "toolName": "search",
+      "input": {
+        "keywords": [
+          "Victoria Grove",
+          "42",
+          "offer",
+          "accepted"
+        ],
+        "searchQuery": "42 Victoria Grove Chorlton offer accepted price"
+      }
+    }
+  ],
+  "score": 1,
+  "metadata": {
+    "facts": [
+      {
+        "fact": "You were pre-approved for a £350,000 mortgage.",
+        "supported": true,
+        "reason": "Actual answer states mortgage pre-approval of £350,000."
+      },
+      {
+        "fact": "The pre-approval was by David Xu.",
+        "supported": true,
+        "reason": "Actual answer identifies David Xu as your mortgage advisor."
+      },
+      {
+        "fact": "David Xu is at First Home Mortgages.",
+        "supported": true,
+        "reason": "Actual answer mentions David Xu is at First Home Mortgages."
+      },
+      {
+        "fact": "You ended up purchasing 42 Victoria Grove.",
+        "supported": true,
+        "reason": "Actual answer states you bought 42 Victoria Grove, Chorlton, Manchester."
+      },
+      {
+        "fact": "The purchase price was £437,500.",
+        "supported": true,
+        "reason": "Actual answer gives the total purchase price as £437,500."
+      }
+    ],
+    "supportedCount": 5,
+    "totalFacts": 5
+  }
+}

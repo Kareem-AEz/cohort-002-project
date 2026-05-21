@@ -1,28 +1,33 @@
 {
-  "writtenAt": "2026-05-21T15:08:39.058Z",
+  "writtenAt": "2026-05-21T15:51:15.074Z",
   "question": "user: Which house did I buy? What is its address?",
-  "answer": "Based on your emails, here's what I've found:\n\n---\n\n## 🏡 You bought **42 Victoria Grove, Chorlton, Manchester M21 9EH**\n\nHere's the timeline from your emails:\n\n| Date | Milestone |\n|------|-----------|\n| **Aug 24, 2024** | Initial offer submitted on **14 Beech Grove** (£347,000) |\n| **Aug 29-30, 2024** | Negotiated to **£353,500** on the Victorian terrace |\n| **Aug 31, 2024** | Offer formally accepted |\n| **Oct 18, 2024** | **Exchanged contracts** on **42 Victoria Grove, Chorlton** |\n| **Nov 1, 2024** | **Completion day** — keys collected! 🎉 |\n\n### Final Purchase Details:\n- **Address:** 42 Victoria Grove, Chorlton, Manchester M21 9EH\n- **Purchase Price:** **£437,500**\n- **Mortgage:** £350,000 from First Home Mortgages Ltd\n- **Deposit:** £43,750 (10%)\n- **Your Solicitor:** Rebecca Thompson at Thompson Legal Services\n\nIt looks like you viewed a few properties (14 Beech Grove initially, then also looked at others), but **42 Victoria Grove** in Chorlton is the one you ended up buying. Congratulations, Sarah! 🏡✨",
+  "answer": "You bought **42 Victoria Grove, Chorlton, Manchester M21 9EH**! 🏡\n\nHere are the details from the legal documents:\n\n- **Property**: 42 Victoria Grove, Chorlton, Manchester M21 9EH\n- **Purchase Price**: £437,500\n- **Completion Date**: 1 November 2024\n- **Mortgage**: £350,000 from First Home Mortgages Ltd\n- **Deposit**: £43,750 (10%)\n\nInterestingly, there were a couple of different addresses floating around in earlier emails (including references to \"42 Maple Grove\" and \"42 Sycamore Road\"), but the official exchange of contracts from your solicitor, Rebecca Thompson at Thompson Legal Services, confirms that **42 Victoria Grove** is the property you legally purchased. It's a Victorian terrace in Chorlton that you bought alongside Alex Morgan (your partner, I gather from the email).\n\nCongratulations on the new home! 🎉",
   "expected": "You bought a house at 42 Victoria Grove, Chorlton, Manchester M21 9EH.",
   "toolCalls": [
     {
       "type": "tool-call",
-      "toolCallId": "call_00_HKmqmlc16wVJ1pfgeo7a7197",
+      "toolCallId": "call_00_Bn77ekXRq5bCaaVoFiZ56872",
       "toolName": "search",
       "input": {
-        "searchQuery": "bought a house purchase real estate property address"
+        "keywords": [
+          "house",
+          "bought",
+          "home",
+          "address",
+          "purchase"
+        ],
+        "searchQuery": "house purchase bought home address"
       }
     },
     {
       "type": "tool-call",
-      "toolCallId": "call_00_0d2CFi5HDj6DwhO79Jne8817",
+      "toolCallId": "call_00_QpvdFG5P8McH6NlPAqJh0649",
       "toolName": "getEmails",
       "input": {
         "ids": [
           "email_1759404732520_20lv9jsvb",
           "email_1759404651718_e3ap4il9y",
-          "email_1759404521668_ypj9uvbwu",
-          "email_1759404510118_ciengfg6x",
-          "email_1759404496145_wj8oa82zs"
+          "email_1759404732520_gah48ef4t"
         ],
         "includeThread": true
       }
@@ -34,15 +39,30 @@
       {
         "fact": "You bought a house.",
         "supported": true,
-        "reason": "The actual answer states \"You bought 42 Victoria Grove, Chorlton, Manchester M21 9EH\" and confirms completion."
+        "reason": "Actual answer states 'You bought 42 Victoria Grove', implying a house purchase."
       },
       {
-        "fact": "The house address is 42 Victoria Grove, Chorlton, Manchester M21 9EH.",
+        "fact": "The house is at 42 Victoria Grove.",
         "supported": true,
-        "reason": "The actual answer explicitly provides this address as the purchased property."
+        "reason": "Actual answer explicitly mentions '42 Victoria Grove' multiple times."
+      },
+      {
+        "fact": "The house is in Chorlton.",
+        "supported": true,
+        "reason": "Actual answer includes 'Chorlton' in the address."
+      },
+      {
+        "fact": "The house is in Manchester.",
+        "supported": true,
+        "reason": "Actual answer includes 'Manchester' in the address."
+      },
+      {
+        "fact": "The postcode of the house is M21 9EH.",
+        "supported": true,
+        "reason": "Actual answer provides the full postcode 'M21 9EH'."
       }
     ],
-    "supportedCount": 2,
-    "totalFacts": 2
+    "supportedCount": 5,
+    "totalFacts": 5
   }
 }
