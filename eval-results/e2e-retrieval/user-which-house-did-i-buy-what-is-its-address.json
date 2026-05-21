@@ -1,0 +1,48 @@
+{
+  "writtenAt": "2026-05-21T15:08:39.058Z",
+  "question": "user: Which house did I buy? What is its address?",
+  "answer": "Based on your emails, here's what I've found:\n\n---\n\n## 🏡 You bought **42 Victoria Grove, Chorlton, Manchester M21 9EH**\n\nHere's the timeline from your emails:\n\n| Date | Milestone |\n|------|-----------|\n| **Aug 24, 2024** | Initial offer submitted on **14 Beech Grove** (£347,000) |\n| **Aug 29-30, 2024** | Negotiated to **£353,500** on the Victorian terrace |\n| **Aug 31, 2024** | Offer formally accepted |\n| **Oct 18, 2024** | **Exchanged contracts** on **42 Victoria Grove, Chorlton** |\n| **Nov 1, 2024** | **Completion day** — keys collected! 🎉 |\n\n### Final Purchase Details:\n- **Address:** 42 Victoria Grove, Chorlton, Manchester M21 9EH\n- **Purchase Price:** **£437,500**\n- **Mortgage:** £350,000 from First Home Mortgages Ltd\n- **Deposit:** £43,750 (10%)\n- **Your Solicitor:** Rebecca Thompson at Thompson Legal Services\n\nIt looks like you viewed a few properties (14 Beech Grove initially, then also looked at others), but **42 Victoria Grove** in Chorlton is the one you ended up buying. Congratulations, Sarah! 🏡✨",
+  "expected": "You bought a house at 42 Victoria Grove, Chorlton, Manchester M21 9EH.",
+  "toolCalls": [
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_HKmqmlc16wVJ1pfgeo7a7197",
+      "toolName": "search",
+      "input": {
+        "searchQuery": "bought a house purchase real estate property address"
+      }
+    },
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_0d2CFi5HDj6DwhO79Jne8817",
+      "toolName": "getEmails",
+      "input": {
+        "ids": [
+          "email_1759404732520_20lv9jsvb",
+          "email_1759404651718_e3ap4il9y",
+          "email_1759404521668_ypj9uvbwu",
+          "email_1759404510118_ciengfg6x",
+          "email_1759404496145_wj8oa82zs"
+        ],
+        "includeThread": true
+      }
+    }
+  ],
+  "score": 1,
+  "metadata": {
+    "facts": [
+      {
+        "fact": "You bought a house.",
+        "supported": true,
+        "reason": "The actual answer states \"You bought 42 Victoria Grove, Chorlton, Manchester M21 9EH\" and confirms completion."
+      },
+      {
+        "fact": "The house address is 42 Victoria Grove, Chorlton, Manchester M21 9EH.",
+        "supported": true,
+        "reason": "The actual answer explicitly provides this address as the purchased property."
+      }
+    ],
+    "supportedCount": 2,
+    "totalFacts": 2
+  }
+}

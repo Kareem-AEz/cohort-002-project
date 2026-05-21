@@ -1,0 +1,40 @@
+{
+  "writtenAt": "2026-05-21T15:08:39.792Z",
+  "question": "user: Am I married? If so, who to?",
+  "answer": "Based on what I found in your emails, it seems you're not married yet — but you're **engaged** and actively planning a wedding! 💍\n\nHere's what I've gathered:\n\n- You're engaged to **Alex** (likely Alex Chen based on the email address `alex.chen.dev@gmail.com`).\n- There are multiple threads about **wedding planning** dating back to October 2025 — consultations with an officiant named Natasha, Pinterest boards for wedding vision, photography recommendations, and a \"Save the Date\" group thread.\n- Friends and family (including someone named Sophie and someone from `mchen1965@gmail.com)`) have been reaching out with excitement and offers to help.\n\nSo congrats! 🎉 It looks like the big day is in the works but hasn't happened yet. Would you like me to look up any specific details from those wedding planning emails?",
+  "expected": "You are not married. Your partner is Alex Chen.",
+  "toolCalls": [
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_rl3bJP1X03ktYVrfnReI6931",
+      "toolName": "search",
+      "input": {
+        "keywords": [
+          "husband",
+          "wife",
+          "married",
+          "spouse",
+          "wedding"
+        ],
+        "searchQuery": "marriage wedding spouse husband wife"
+      }
+    }
+  ],
+  "score": 1,
+  "metadata": {
+    "facts": [
+      {
+        "fact": "You are not married.",
+        "supported": true,
+        "reason": "The actual answer clearly states 'you're not married yet'."
+      },
+      {
+        "fact": "Your partner is Alex Chen.",
+        "supported": true,
+        "reason": "The actual answer mentions 'You're engaged to Alex (likely Alex Chen based on the email address alex.chen.dev@gmail.com).'"
+      }
+    ],
+    "supportedCount": 2,
+    "totalFacts": 2
+  }
+}

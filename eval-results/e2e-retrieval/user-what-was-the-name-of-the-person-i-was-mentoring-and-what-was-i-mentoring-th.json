@@ -1,0 +1,44 @@
+{
+  "writtenAt": "2026-05-21T15:08:31.512Z",
+  "question": "user: What was the name of the person I was mentoring, and what was I mentoring them about?",
+  "answer": "Based on your emails, the person you were mentoring is **Elena Kovac**. She reached out to you through the **Women in Tech mentorship network** after seeing your rock climbing achievements.\n\nYou were mentoring her about **rock climbing** — specifically beginner climbing guidance. She was new to climbing, doing indoor climbing at The Climbing Works, and feeling a bit overwhelmed about progressing safely. You offered to meet her for coffee after your training sessions to share tips, and you gave her some initial advice like:\n\n- Focusing on **technique over strength** initially\n- Taking **beginner technique classes**\n- Not being afraid to **fall safely** as part of the learning process\n\nSounds like you're doing a great mentorship role! 🧗‍♀️",
+  "expected": "You were mentoring Elena Kovac on the subject of climbing.",
+  "toolCalls": [
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_hH30bZnEmuAmfDUQY4d62920",
+      "toolName": "search",
+      "input": {
+        "searchQuery": "mentoring mentorship mentee"
+      }
+    },
+    {
+      "type": "tool-call",
+      "toolCallId": "call_00_JFoJGU1qGSkgBwm1G2kM1087",
+      "toolName": "getEmails",
+      "input": {
+        "ids": [
+          "email_1759406368495_fycwu0rdi"
+        ],
+        "includeThread": true
+      }
+    }
+  ],
+  "score": 1,
+  "metadata": {
+    "facts": [
+      {
+        "fact": "You were mentoring Elena Kovac.",
+        "supported": true,
+        "reason": "The actual answer explicitly states 'the person you were mentoring is Elena Kovac'."
+      },
+      {
+        "fact": "You were mentoring on the subject of climbing.",
+        "supported": true,
+        "reason": "The actual answer states 'you were mentoring her about rock climbing', which matches the subject of climbing."
+      }
+    ],
+    "supportedCount": 2,
+    "totalFacts": 2
+  }
+}

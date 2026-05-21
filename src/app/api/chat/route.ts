@@ -29,6 +29,7 @@ import { searchMessages } from "@/app/message-search";
 import { searchForRelatedChats } from "@/app/search-for-related-chats";
 import { chatToText } from "@/app/utils";
 import { reflectOnChat } from "@/app/reflect-on-chat";
+import { createAgent } from "./agent";
 
 const myTools = {
   searchTool,
@@ -152,52 +153,16 @@ export async function POST(req: Request) {
         messageHistoryToUse
       );
 
-      const result = streamText({
+      const agent = createAgent({
+        messages,
         model,
-        system: [
-          `You are an email assistant. Today is ${new Date().toISOString().slice(0, 10)}.`,
-          ``,
-          `You have three tools and should follow a metadata-first workflow:`,
-          ``,
-          `Step 1 - Browse metadata:`,
-          `- filterTool: exact retrieval by sender, recipient, body substring, or date range. Use it when the user names concrete fields, like "emails from alice last week".`,
-          `- searchTool: keyword and semantic ranking. Use it for topical or open-ended questions, like "what did we decide about pricing?".`,
-          `Both return metadata with snippets only (id, threadId, subject, from, to, timestamp, snippet), not full bodies. You can combine them; for example filter to a sender or date window first, then search within those results.`,
-          ``,
-          `Step 2 - Review and select:`,
-          `Read the subjects and snippets you got back. If they already answer the user's question, just answer. Don't fetch full bodies for no reason.`,
-          ``,
-          `Step 3 - Fetch full bodies when needed:`,
-          `- getEmailsTool: pass an array of email ids whose full body you need to read. Use this only after step 1 has narrowed the candidates down.`,
-          ``,
-          `Answer only from emails you actually retrieved. Quote subject and sender when it helps the user verify. If a tool returns nothing relevant, say so plainly. Do not invent senders, subjects, or contents.`,
-          ``,
-          `Voice: write like a colleague over chat. Plain language, short sentences. Do not use em dashes; use a comma, period, or parentheses instead. Skip filler openers like "Great question" or "I'd be happy to", and skip closing pleasantries. Avoid hedging adverbs like "simply", "essentially", or "actually". Match length to the question; a short question gets a short answer. Use prose by default and only reach for bullets when the content is genuinely a list.`,
-          `You have access to the following memories:
-          <memories>
-          ${memoriesToUse
-            .map((memory) => [
-              `<memory id="${memory.item.id}">`,
-              memoryToText(memory.item),
-              "</memory>",
-            ])
-            .join("\n")}          
-          </memories>
-          
-          <related-chats>
-            Here are some related chats that may be relevant to the conversation:
-
-            ${relatedChats
-              .map((chat) => ["<chat>", chatToText(chat.item), "</chat>"])
-              .join("\n")}
-          </related-chats>
-
-`,
-        ].join("\n"),
-        messages: await convertToModelMessages(messageHistoryToUse),
-        tools: myTools,
+        memories: memoriesToUse.map((memory) => memory.item),
+        relatedChats: relatedChats.map((chat) => chat.item),
         stopWhen: [stepCountIs(10)],
-        // src/app/api/chat/route.ts
+      });
+
+      const result = await agent.stream({
+        messages: await convertToModelMessages(messageHistoryToUse),
       });
 
       writer.merge(
